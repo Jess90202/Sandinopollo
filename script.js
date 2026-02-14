@@ -15,7 +15,7 @@ const HEART_COLORS = [
 ];
 
 // Velocidades
-const HEART_BUILD_SECONDS = 1.35;  // forma rápido
+const HEART_BUILD_SECONDS = 1.15;  // forma rápido
 const SPEED_TITLE = 170;           // texto palabra a palabra
 const SPEED_BODY  = 120;
 
@@ -117,6 +117,25 @@ function drawTexturedHeart(x,y,s,color,rot){
   ctx.restore();
 }
 
+
+function drawHeartSilhouette(cx, cy, size){
+  ctx.save();
+  ctx.translate(cx, cy);
+  const s = size * 0.33;
+  ctx.beginPath();
+  ctx.moveTo(0, -s*0.25);
+  ctx.bezierCurveTo( s*0.55, -s*0.95,  s*1.15, -s*0.05, 0, s);
+  ctx.bezierCurveTo(-s*1.15, -s*0.05, -s*0.55, -s*0.95, 0, -s*0.25);
+  ctx.closePath();
+  const g = ctx.createRadialGradient(-s*0.3, -s*0.4, s*0.2, 0, 0, s*1.35);
+  g.addColorStop(0, "rgba(255, 220, 235, 0.95)");
+  g.addColorStop(0.45, "rgba(255, 120, 165, 0.55)");
+  g.addColorStop(1, "rgba(198, 31, 58, 0.22)");
+  ctx.fillStyle = g;
+  ctx.fill();
+  ctx.restore();
+}
+
 // ============================
 // HEART PARTICLES
 // ============================
@@ -131,15 +150,15 @@ function layout(){
   const h = canvas.getBoundingClientRect().height;
   const cx = w * 0.5;
   const cy = h * 0.53;         // centro visual de la tarjeta
-  const size = Math.min(w, h) * 0.26;
+  const size = Math.min(w, h) * 0.30;
   return { w, h, cx, cy, size };
 }
 
 function resetHearts(){
   const { w, h, cx, cy, size } = layout();
-  targets = makeTargets(cx, cy, size, 520, 240);
+  targets = makeTargets(cx, cy, size, 1600, 360);
 
-  const N = 420;
+  const N = (layout().w < 520 ? 850 : 1100);
   particles = [];
   for (let i=0;i<N;i++){
     const t = targets[i % targets.length];
@@ -160,7 +179,7 @@ function resetHearts(){
       x: x0, y: y0,
       tx: t.x + rand(-4,4),
       ty: t.y + rand(-4,4),
-      s: rand(7, 12),
+      s: rand(8, 14),
       c: HEART_COLORS[(Math.random()*HEART_COLORS.length)|0],
       rot: rand(0, Math.PI*2),
       vr: rand(-0.05, 0.05)
@@ -171,6 +190,10 @@ function resetHearts(){
 function drawScene(progress){
   const { w, h } = layout();
   ctx.clearRect(0,0,w,h);
+
+  // base del corazón para que NO se vea el fondo
+  drawHeartSilhouette(w*0.5, h*0.53, Math.min(w,h)*0.30);
+
 
   const p = easeOutCubic(progress);
   for (const a of particles){
@@ -184,9 +207,9 @@ function drawScene(progress){
 }
 
 // ============================
-// TEXT (palabra a palabra + cursor)
+// TEXT (palabra a palabra, sin guiones)
 // ============================
-function withCursor(s){ return s + " _"; }
+let textStarted = false;
 
 async function typeWords(el, text, speedMs){
   el.classList.add("visible");
@@ -194,10 +217,8 @@ async function typeWords(el, text, speedMs){
   const parts = text.split(/(\s+)/);
   for (const part of parts){
     el.textContent += part;
-    el.textContent = withCursor(el.textContent.replace(/\s_$/,""));
     await sleep(speedMs);
   }
-  el.textContent = el.textContent.replace(/\s_$/,"");
 }
 
 function showContent(){
