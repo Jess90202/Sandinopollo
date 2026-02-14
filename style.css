@@ -1,96 +1,107 @@
-*{box-sizing:border-box;margin:0;padding:0}
-
-body{
-  height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  background:linear-gradient(180deg,#3a0030,#130010);
-  font-family:'Playfair Display',serif;
+:root{
+  --card:#f3e9df;
+  --bg1:#3a0030;
+  --bg2:#130010;
+  --shadow:0 20px 50px rgba(0,0,0,.25);
+  --accent:#c61f3a;
+  --ink:#2b1f1c;
 }
-
-.card{
-  width:95vw;
-  max-width:850px;
-  height:90vh;
-  background:#f3e9df;
-  border-radius:20px;
-  position:relative;
+*{box-sizing:border-box}
+html,body{height:100%; margin:0}
+body{
+  font-family:'Playfair Display', serif;
+  color:var(--ink);
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255,0,120,.25), transparent 40%),
+    radial-gradient(circle at 70% 30%, rgba(255,0,200,.22), transparent 45%),
+    radial-gradient(circle at 50% 80%, rgba(255,0,90,.18), transparent 55%),
+    linear-gradient(180deg,var(--bg1),var(--bg2));
+  display:flex; align-items:center; justify-content:center;
   overflow:hidden;
 }
-
-canvas{
-  width:100%;
-  height:100%;
-  position:absolute;
-  top:0;
-  left:0;
+.wrap{width:100%; padding:18px; display:flex; justify-content:center;}
+.card{
+  width:95vw; max-width:920px;
+  height:90vh; max-height:740px;
+  background:var(--card);
+  border-radius:22px;
+  box-shadow:var(--shadow);
+  position:relative; overflow:hidden;
 }
+#scene{width:100%; height:100%; display:block;}
 
-.intro{
-  position:absolute;
-  inset:0;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  z-index:10;
+/* Intro */
+.intro{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; z-index:10;}
+.startBtn{background:none; border:none; cursor:pointer; text-align:center; padding:14px 18px;}
+.heartIcon{
+  display:block; font-size:64px; color:var(--accent);
+  filter: drop-shadow(0 10px 18px rgba(198,31,58,.25));
+  animation: pulse 1.4s ease-in-out infinite;
 }
-
-.startBtn{
-  background:none;
-  border:none;
-  cursor:pointer;
-  text-align:center;
+.startText{
+  display:block;
+  font-family:'Dancing Script', cursive;
+  font-size:42px; color:var(--accent);
+  opacity:0; transform:translateY(8px);
+  animation: fadeUp 900ms ease 120ms both;
 }
+.hint{display:block; font-size:12px; opacity:.72; margin-top:6px;}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+@keyframes fadeUp{from{opacity:0; transform:translateY(12px)}to{opacity:1; transform:translateY(0)}}
 
-.bigHeart{
-  font-size:70px;
-  color:#c61f3a;
-  animation:pulse 1.5s infinite;
-}
-
-.title{
-  font-family:'Dancing Script',cursive;
-  font-size:40px;
-  color:#c61f3a;
-}
-
-@keyframes pulse{
-  0%,100%{transform:scale(1)}
-  50%{transform:scale(1.1)}
-}
-
+/* Content */
 .content{
-  position:absolute;
-  inset:0;
-  padding:50px 25px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  text-align:center;
-  z-index:5;
+  position:absolute; inset:0;
+  padding:52px 22px 40px;
+  display:flex; flex-direction:column; align-items:center;
+  gap:18px;
+  z-index:6;
+  opacity:0; transform:translateY(8px);
+  transition:opacity 650ms ease, transform 650ms ease;
+  pointer-events:none; /* para que no bloquee el canvas */
+}
+.content.show{opacity:1; transform:translateY(0);}
+.hidden{display:none;}
+
+.topText{width:min(720px, 92%);}
+.line{margin:0 0 14px 0; white-space:pre-wrap; opacity:0; transform:translateY(6px);
+  transition:opacity 420ms ease, transform 420ms ease;
+}
+.line.visible{opacity:1; transform:translateY(0);}
+.title{font-size:30px; text-align:center;}
+.body{font-size:22px; line-height:1.42; text-align:justify; text-justify:inter-word;}
+
+/* Reserve space where the heart will be drawn on canvas */
+.heartSlot{
+  width:min(520px, 82vw);
+  height:min(360px, 36vh);
 }
 
-.hidden{display:none}
-
-.text{
-  font-size:22px;
-  margin-bottom:15px;
-  max-width:700px;
-}
-
-.timerBlock{
-  margin-top:20px;
-  border-top:2px solid rgba(0,0,0,.2);
-  padding-top:15px;
-}
-
+/* Timer BELOW the heart */
+.bottomText{width:min(720px, 92%);}
 .timer{
-  font-size:28px;
-  font-weight:700;
+  width:100%;
+  border-top:2px solid rgba(43,31,28,.25);
+  padding-top:12px;
+  text-align:center;
+}
+.timerLabel{display:block; font-size:14px; opacity:.76; margin-bottom:6px;}
+.timerValue{font-size:30px; font-weight:700;}
+
+/* Toast */
+.toast{
+  position:absolute; left:50%; bottom:18px; transform:translateX(-50%);
+  background:rgba(0,0,0,.75); color:#fff;
+  padding:10px 12px; border-radius:12px;
+  font-size:12px;
+  z-index:20;
 }
 
-@media(max-width:500px){
-  .text{font-size:19px}
-  .timer{font-size:22px}
+/* Mobile */
+@media (max-width:520px){
+  .content{padding:40px 16px 30px; gap:14px;}
+  .title{font-size:26px;}
+  .body{font-size:19px; text-align:left;}
+  .timerValue{font-size:24px;}
+  .heartSlot{height:min(320px, 34vh);}
 }
