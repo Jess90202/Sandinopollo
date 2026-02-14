@@ -16,50 +16,45 @@ body{
   align-items:center;
   background:radial-gradient(circle at top,#3a0035,#120010 70%);
   font-family:'Playfair Display',serif;
+  overflow:hidden;
 }
 
 .card{
   width:95vw;
   max-width:900px;
   height:92vh;
-  background:#f6efe7;
+  background:#140011;
   border-radius:24px;
-  box-shadow:0 25px 60px rgba(0,0,0,.4);
+  box-shadow:0 25px 60px rgba(0,0,0,.6);
   display:flex;
   flex-direction:column;
   justify-content:center;
   align-items:center;
   text-align:center;
-  padding:30px 25px 40px 25px;
+  padding:30px;
   position:relative;
-  overflow:hidden;
+  color:white;
 }
 
-/* -------- INTRO -------- */
 .intro{
   cursor:pointer;
-  text-align:center;
 }
-
 .intro h1{
   font-family:'Great Vibes',cursive;
   font-size:90px;
-  color:#b1123a;
+  color:#ffd700;
   margin:0;
   transition:.6s ease;
 }
-
 .intro p{
-  margin-top:10px;
   opacity:.7;
+  margin-top:10px;
 }
-
 .fadeOut{
   opacity:0;
-  transform:scale(.5);
+  transform:scale(.4);
 }
 
-/* -------- CONTENT -------- */
 .content{
   display:none;
   flex-direction:column;
@@ -73,25 +68,6 @@ body{
   line-height:1.5;
 }
 
-.timer{
-  margin-top:25px;
-  border-top:2px solid rgba(0,0,0,.2);
-  padding-top:18px;
-}
-
-.timer span{
-  display:block;
-  font-size:15px;
-  opacity:.75;
-  margin-bottom:6px;
-}
-
-.timer strong{
-  font-size:26px;
-  display:block;
-}
-
-/* -------- HEART -------- */
 svg{
   width:340px;
   height:320px;
@@ -104,28 +80,31 @@ svg{
   50%{transform:scale(1.06)}
 }
 
-#heartFill{
-  filter: drop-shadow(0 20px 30px rgba(150,0,60,.4));
+.timer{
+  margin-top:25px;
+  border-top:2px solid rgba(255,255,255,.2);
+  padding-top:18px;
+}
+.timer span{
+  display:block;
+  font-size:15px;
+  opacity:.75;
+  margin-bottom:6px;
+}
+.timer strong{
+  font-size:26px;
+  display:block;
 }
 
-.shine{
+canvas{
   position:absolute;
-  width:200%;
-  height:100%;
-  background:linear-gradient(120deg, transparent 30%, rgba(255,255,255,.5) 50%, transparent 70%);
-  transform:translateX(-100%);
-  animation:shineMove 4s ease-in-out infinite;
-}
-
-@keyframes shineMove{
-  0%{transform:translateX(-100%)}
-  50%{transform:translateX(100%)}
-  100%{transform:translateX(100%)}
+  inset:0;
+  pointer-events:none;
 }
 
 @media(max-width:500px){
-  .text{font-size:19px}
   .intro h1{font-size:70px}
+  .text{font-size:19px}
 }
 </style>
 </head>
@@ -133,19 +112,17 @@ svg{
 
 <div class="card">
 
-<!-- INTRO -->
+<canvas id="particles"></canvas>
+
 <div class="intro" id="intro">
 <h1 id="letters">M & J</h1>
 <p>Toca las letras</p>
 </div>
 
-<!-- CONTENT -->
 <div class="content" id="content">
-
 <p class="text">Para el amor de mi existencia:</p>
 <p class="text">Si pudiera elegir un lugar seguro sería a tu lado. Cuanto más tiempo estoy contigo más te amo.</p>
 
-<div style="position:relative">
 <svg viewBox="0 0 512 512">
 <defs>
 <radialGradient id="mainGrad" cx="50%" cy="40%" r="70%">
@@ -156,13 +133,10 @@ svg{
 </defs>
 
 <path d="M256 464s-192-128-192-256c0-70 50-112 112-112 44 0 80 28 80 28s36-28 80-28c62 0 112 42 112 112 0 128-192 256-192 256z"
-fill="url(#mainGrad)" id="heartFill"/>
+fill="url(#mainGrad)"/>
 
 <text x="50%" y="55%" text-anchor="middle" fill="white" font-size="60" font-family="Great Vibes">M ❤️ J</text>
 </svg>
-
-<div class="shine"></div>
-</div>
 
 <div class="timer">
 <span>Mi amor por ti comenzó hace…</span>
@@ -181,17 +155,53 @@ const letters = document.getElementById("letters");
 const content = document.getElementById("content");
 const counter = document.getElementById("counter");
 const music = document.getElementById("music");
+const canvas = document.getElementById("particles");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
 const START_DATE = new Date("2025-02-15T00:00:00");
 
 intro.addEventListener("click", ()=>{
   letters.classList.add("fadeOut");
+  explodeParticles();
   setTimeout(()=>{
     intro.style.display="none";
     content.style.display="flex";
     try{music.play();}catch(e){}
   },600);
 });
+
+let particles=[];
+
+function explodeParticles(){
+  for(let i=0;i<80;i++){
+    particles.push({
+      x: canvas.width/2,
+      y: canvas.height/2,
+      vx:(Math.random()-0.5)*6,
+      vy:(Math.random()-0.5)*6,
+      alpha:1
+    });
+  }
+}
+
+function animate(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  particles.forEach(p=>{
+    p.x+=p.vx;
+    p.y+=p.vy;
+    p.alpha-=0.01;
+    ctx.fillStyle="rgba(255,215,0,"+p.alpha+")";
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,4,0,Math.PI*2);
+    ctx.fill();
+  });
+  particles=particles.filter(p=>p.alpha>0);
+  requestAnimationFrame(animate);
+}
+animate();
 
 function startTimer(){
   function update(){
@@ -201,16 +211,11 @@ function startTimer(){
     const hours = Math.floor((total%86400)/3600);
     const minutes = Math.floor((total%3600)/60);
     const seconds = total%60;
-
-    counter.textContent = days + " días " +
-                          hours + " horas " +
-                          minutes + " minutos " +
-                          seconds + " segundos";
+    counter.textContent = days+" días "+hours+" horas "+minutes+" minutos "+seconds+" segundos";
   }
   update();
   setInterval(update,1000);
 }
-
 startTimer();
 </script>
 
