@@ -14,33 +14,14 @@ body{
   display:flex;
   justify-content:center;
   align-items:center;
-  background:radial-gradient(circle at top,#4a003f,#150012 70%);
+  background:radial-gradient(circle at top,#3a0035,#120010 70%);
   font-family:'Playfair Display',serif;
-  overflow:hidden;
-}
-
-/* Floating soft lights */
-body::before{
-  content:"";
-  position:fixed;
-  inset:0;
-  background:
-    radial-gradient(circle at 20% 30%, rgba(255,255,255,.08), transparent 40%),
-    radial-gradient(circle at 70% 60%, rgba(255,255,255,.06), transparent 50%),
-    radial-gradient(circle at 50% 80%, rgba(255,255,255,.05), transparent 60%);
-  animation:floatLights 12s ease-in-out infinite alternate;
-  pointer-events:none;
-}
-
-@keyframes floatLights{
-  0%{transform:translateY(0)}
-  100%{transform:translateY(-40px)}
 }
 
 .card{
   width:95vw;
   max-width:900px;
-  height:90vh;
+  height:92vh;
   background:#f6efe7;
   border-radius:24px;
   box-shadow:0 25px 60px rgba(0,0,0,.4);
@@ -49,106 +30,50 @@ body::before{
   justify-content:center;
   align-items:center;
   text-align:center;
-  padding:30px;
+  padding:30px 25px 40px 25px;
   position:relative;
   overflow:hidden;
 }
 
-.start{
-  cursor:pointer;
-}
-
-.start h1{
-  font-family:'Great Vibes',cursive;
-  font-size:90px;
-  color:#b1123a;
-  margin:0;
-  transition:.8s ease;
-}
-
-.fadeOut{
-  opacity:0;
-  transform:scale(.4);
-}
-
-.content{
-  display:none;
-  flex-direction:column;
-  align-items:center;
-}
-
 .text{
   max-width:650px;
-  margin-bottom:18px;
+  margin-bottom:20px;
   font-size:22px;
   line-height:1.5;
 }
 
 .timer{
-  margin-top:20px;
+  margin-top:25px;
   border-top:2px solid rgba(0,0,0,.2);
-  padding-top:15px;
+  padding-top:18px;
+}
+
+.timer span{
+  display:block;
+  font-size:15px;
+  opacity:.75;
+  margin-bottom:6px;
 }
 
 .timer strong{
-  font-size:28px;
+  font-size:26px;
+  display:block;
 }
 
 svg{
-  width:350px;
-  height:330px;
+  width:340px;
+  height:320px;
   margin:20px 0;
 }
 
-#heartPath{
-  fill:none;
-  stroke:#b1123a;
-  stroke-width:3;
-  stroke-dasharray:1200;
-  stroke-dashoffset:1200;
-  animation:draw 2s ease forwards;
-}
-
+/* Premium glossy heart */
 #heartFill{
-  fill:url(#grad);
-  opacity:0;
-  animation:fillHeart 1.5s ease 2s forwards, pulse 2.5s ease-in-out infinite 4s;
+  filter: drop-shadow(0 15px 25px rgba(180,0,70,.4));
 }
 
-@keyframes draw{ to{stroke-dashoffset:0;} }
-@keyframes fillHeart{ to{opacity:1;} }
-@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
-
-/* Golden particles */
-.particle{
-  position:absolute;
-  width:6px;
-  height:6px;
-  background:gold;
-  border-radius:50%;
-  pointer-events:none;
-  animation:explode 2s ease-out forwards;
-}
-
-@keyframes explode{
-  0%{opacity:1; transform:translate(0,0) scale(1)}
-  100%{opacity:0; transform:translate(var(--x), var(--y)) scale(0)}
-}
-
-/* Shine effect */
-.shine{
-  position:absolute;
-  width:200%;
-  height:100%;
-  background:linear-gradient(120deg, transparent 30%, rgba(255,255,255,.6) 50%, transparent 70%);
-  transform:translateX(-100%);
-  animation:shineMove 4s ease-in-out infinite 3s;
-}
-
-@keyframes shineMove{
-  0%{transform:translateX(-100%)}
-  50%{transform:translateX(100%)}
-  100%{transform:translateX(100%)}
+.gloss{
+  fill:url(#shineGrad);
+  opacity:.4;
 }
 
 </style>
@@ -157,39 +82,36 @@ svg{
 
 <div class="card">
 
-<div class="start" id="start">
-<h1 id="letters">M & J</h1>
-<p>Toca las letras</p>
-</div>
-
-<div class="content" id="content">
 <p class="text">Para el amor de mi existencia:</p>
 <p class="text">Si pudiera elegir un lugar seguro sería a tu lado. Cuanto más tiempo estoy contigo más te amo.</p>
 
-<div style="position:relative">
 <svg viewBox="0 0 512 512">
 <defs>
-<linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-<stop offset="0%" stop-color="#ff4d6d"/>
-<stop offset="50%" stop-color="#ff006e"/>
-<stop offset="100%" stop-color="#b1123a"/>
+<linearGradient id="mainGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+<stop offset="0%" stop-color="#ff7aa6"/>
+<stop offset="40%" stop-color="#ff006e"/>
+<stop offset="100%" stop-color="#8a0033"/>
+</linearGradient>
+
+<linearGradient id="shineGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+<stop offset="0%" stop-color="white"/>
+<stop offset="100%" stop-color="transparent"/>
 </linearGradient>
 </defs>
 
-<path id="heartPath" d="M256 464s-192-128-192-256c0-70 50-112 112-112 44 0 80 28 80 28s36-28 80-28c62 0 112 42 112 112 0 128-192 256-192 256z"/>
-<path id="heartFill" d="M256 464s-192-128-192-256c0-70 50-112 112-112 44 0 80 28 80 28s36-28 80-28c62 0 112 42 112 112 0 128-192 256-192 256z"/>
+<path d="M256 464s-192-128-192-256c0-70 50-112 112-112 44 0 80 28 80 28s36-28 80-28c62 0 112 42 112 112 0 128-192 256-192 256z"
+      fill="url(#mainGrad)" id="heartFill"/>
+
+<!-- gloss highlight -->
+<ellipse cx="256" cy="200" rx="120" ry="80" class="gloss"/>
 
 <text x="50%" y="55%" text-anchor="middle" fill="white" font-size="60" font-family="Great Vibes">M ❤️ J</text>
 
 </svg>
-<div class="shine"></div>
-</div>
 
 <div class="timer">
-<span>Mi amor por ti comenzó hace…</span><br>
+<span>Mi amor por ti comenzó hace…</span>
 <strong id="counter"></strong>
-</div>
-
 </div>
 
 <audio id="music" src="music.mp3" preload="auto" loop></audio>
@@ -197,50 +119,33 @@ svg{
 </div>
 
 <script>
-const start = document.getElementById("start");
-const letters = document.getElementById("letters");
-const content = document.getElementById("content");
 const counter = document.getElementById("counter");
 const music = document.getElementById("music");
 
 const START_DATE = new Date("2025-02-15T00:00:00");
 
-start.addEventListener("click", ()=>{
-  letters.classList.add("fadeOut");
-
-  // Golden particle explosion
-  for(let i=0;i<40;i++){
-    const p=document.createElement("div");
-    p.className="particle";
-    p.style.left="50%";
-    p.style.top="50%";
-    p.style.setProperty("--x",(Math.random()*400-200)+"px");
-    p.style.setProperty("--y",(Math.random()*400-200)+"px");
-    document.querySelector(".card").appendChild(p);
-    setTimeout(()=>p.remove(),2000);
-  }
-
-  setTimeout(()=>{
-    start.style.display="none";
-    content.style.display="flex";
-    try{music.play();}catch(e){}
-    startTimer();
-  },800);
-});
-
 function startTimer(){
   function update(){
     const diff = new Date() - START_DATE;
     const total = Math.floor(diff/1000);
+
     const days = Math.floor(total/86400);
     const hours = Math.floor((total%86400)/3600);
     const minutes = Math.floor((total%3600)/60);
     const seconds = total%60;
-    counter.textContent = `${days} días ${hours} horas ${minutes} minutos ${seconds} segundos`;
+
+    counter.textContent = days + " días " + 
+                          hours + " horas " + 
+                          minutes + " minutos " + 
+                          seconds + " segundos";
   }
   update();
   setInterval(update,1000);
 }
+
+startTimer();
+
+try{ music.play(); }catch(e){}
 </script>
 
 </body>
