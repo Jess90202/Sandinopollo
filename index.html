@@ -35,6 +35,37 @@ body{
   overflow:hidden;
 }
 
+/* -------- INTRO -------- */
+.intro{
+  cursor:pointer;
+  text-align:center;
+}
+
+.intro h1{
+  font-family:'Great Vibes',cursive;
+  font-size:90px;
+  color:#b1123a;
+  margin:0;
+  transition:.6s ease;
+}
+
+.intro p{
+  margin-top:10px;
+  opacity:.7;
+}
+
+.fadeOut{
+  opacity:0;
+  transform:scale(.5);
+}
+
+/* -------- CONTENT -------- */
+.content{
+  display:none;
+  flex-direction:column;
+  align-items:center;
+}
+
 .text{
   max-width:650px;
   margin-bottom:20px;
@@ -60,58 +91,84 @@ body{
   display:block;
 }
 
+/* -------- HEART -------- */
 svg{
   width:340px;
   height:320px;
   margin:20px 0;
+  animation:heartbeat 2.5s ease-in-out infinite;
 }
 
-/* Premium glossy heart */
+@keyframes heartbeat{
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.06)}
+}
+
 #heartFill{
-  filter: drop-shadow(0 15px 25px rgba(180,0,70,.4));
+  filter: drop-shadow(0 20px 30px rgba(150,0,60,.4));
 }
 
-.gloss{
-  fill:url(#shineGrad);
-  opacity:.4;
+.shine{
+  position:absolute;
+  width:200%;
+  height:100%;
+  background:linear-gradient(120deg, transparent 30%, rgba(255,255,255,.5) 50%, transparent 70%);
+  transform:translateX(-100%);
+  animation:shineMove 4s ease-in-out infinite;
 }
 
+@keyframes shineMove{
+  0%{transform:translateX(-100%)}
+  50%{transform:translateX(100%)}
+  100%{transform:translateX(100%)}
+}
+
+@media(max-width:500px){
+  .text{font-size:19px}
+  .intro h1{font-size:70px}
+}
 </style>
 </head>
 <body>
 
 <div class="card">
 
+<!-- INTRO -->
+<div class="intro" id="intro">
+<h1 id="letters">M & J</h1>
+<p>Toca las letras</p>
+</div>
+
+<!-- CONTENT -->
+<div class="content" id="content">
+
 <p class="text">Para el amor de mi existencia:</p>
 <p class="text">Si pudiera elegir un lugar seguro sería a tu lado. Cuanto más tiempo estoy contigo más te amo.</p>
 
+<div style="position:relative">
 <svg viewBox="0 0 512 512">
 <defs>
-<linearGradient id="mainGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-<stop offset="0%" stop-color="#ff7aa6"/>
+<radialGradient id="mainGrad" cx="50%" cy="40%" r="70%">
+<stop offset="0%" stop-color="#ff9ac2"/>
 <stop offset="40%" stop-color="#ff006e"/>
-<stop offset="100%" stop-color="#8a0033"/>
-</linearGradient>
-
-<linearGradient id="shineGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-<stop offset="0%" stop-color="white"/>
-<stop offset="100%" stop-color="transparent"/>
-</linearGradient>
+<stop offset="100%" stop-color="#6e0028"/>
+</radialGradient>
 </defs>
 
 <path d="M256 464s-192-128-192-256c0-70 50-112 112-112 44 0 80 28 80 28s36-28 80-28c62 0 112 42 112 112 0 128-192 256-192 256z"
-      fill="url(#mainGrad)" id="heartFill"/>
-
-<!-- gloss highlight -->
-<ellipse cx="256" cy="200" rx="120" ry="80" class="gloss"/>
+fill="url(#mainGrad)" id="heartFill"/>
 
 <text x="50%" y="55%" text-anchor="middle" fill="white" font-size="60" font-family="Great Vibes">M ❤️ J</text>
-
 </svg>
+
+<div class="shine"></div>
+</div>
 
 <div class="timer">
 <span>Mi amor por ti comenzó hace…</span>
 <strong id="counter"></strong>
+</div>
+
 </div>
 
 <audio id="music" src="music.mp3" preload="auto" loop></audio>
@@ -119,24 +176,35 @@ svg{
 </div>
 
 <script>
+const intro = document.getElementById("intro");
+const letters = document.getElementById("letters");
+const content = document.getElementById("content");
 const counter = document.getElementById("counter");
 const music = document.getElementById("music");
 
 const START_DATE = new Date("2025-02-15T00:00:00");
 
+intro.addEventListener("click", ()=>{
+  letters.classList.add("fadeOut");
+  setTimeout(()=>{
+    intro.style.display="none";
+    content.style.display="flex";
+    try{music.play();}catch(e){}
+  },600);
+});
+
 function startTimer(){
   function update(){
     const diff = new Date() - START_DATE;
     const total = Math.floor(diff/1000);
-
     const days = Math.floor(total/86400);
     const hours = Math.floor((total%86400)/3600);
     const minutes = Math.floor((total%3600)/60);
     const seconds = total%60;
 
-    counter.textContent = days + " días " + 
-                          hours + " horas " + 
-                          minutes + " minutos " + 
+    counter.textContent = days + " días " +
+                          hours + " horas " +
+                          minutes + " minutos " +
                           seconds + " segundos";
   }
   update();
@@ -144,8 +212,6 @@ function startTimer(){
 }
 
 startTimer();
-
-try{ music.play(); }catch(e){}
 </script>
 
 </body>
