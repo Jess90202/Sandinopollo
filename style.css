@@ -1,25 +1,35 @@
 body{
   margin:0;
-  font-family:Arial, sans-serif;
-  background:#2a0020;
+  font-family:'Playfair Display', serif;
+  background: radial-gradient(circle at 20% 20%, rgba(255,0,120,.25), transparent 40%),
+              radial-gradient(circle at 70% 30%, rgba(255,0,200,.22), transparent 45%),
+              radial-gradient(circle at 50% 80%, rgba(255,0,90,.18), transparent 55%),
+              linear-gradient(180deg,#3a0030,#130010);
   display:flex;
   justify-content:center;
   align-items:center;
-  height:100vh;
+  min-height:100vh;
+  overflow:hidden;
 }
+
 .card{
-  width:90vw;
-  max-width:900px;
-  aspect-ratio:16/9;
+  width:95vw;
+  max-width:950px;
+  height:85vh;
+  max-height:700px;
   background:#f3e9df;
-  border-radius:20px;
+  border-radius:22px;
+  box-shadow:0 20px 50px rgba(0,0,0,.25);
   position:relative;
   overflow:hidden;
 }
+
 canvas{
   width:100%;
   height:100%;
+  display:block;
 }
+
 .intro{
   position:absolute;
   inset:0;
@@ -27,38 +37,54 @@ canvas{
   justify-content:center;
   align-items:center;
 }
-.startBtn{
-  background:none;
-  border:none;
-  cursor:pointer;
-  text-align:center;
+
+.startText{
+  font-family:'Dancing Script', cursive;
+  font-size:42px;
+  color:#c61f3a;
 }
+
 .heartIcon{
   font-size:60px;
   color:#c61f3a;
+  animation:pulse 1.5s infinite;
 }
-.startText{
-  display:block;
-  font-size:28px;
-  font-weight:bold;
-  color:#c61f3a;
+
+@keyframes pulse{
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.08)}
 }
-.hint{
-  font-size:12px;
-  opacity:.7;
-}
+
 .textLayer{
   position:absolute;
   left:40px;
   top:100px;
-  max-width:400px;
+  right:40px;
+  max-width:560px;
+  opacity:0;
+  transform:translateY(10px);
+  transition:all .8s ease;
 }
-.hidden{display:none;}
+
+.textLayer.show{
+  opacity:1;
+  transform:translateY(0);
+}
+
 .line{
-  font-size:20px;
-  margin-bottom:10px;
+  opacity:0;
+  transform:translateY(6px);
+  transition:all .6s ease;
 }
+
+.line.visible{
+  opacity:1;
+  transform:translateY(0);
+}
+
 .timer{
   margin-top:20px;
-  font-weight:bold;
+  font-weight:700;
 }
+
+.hidden{display:none;}
