@@ -1,36 +1,48 @@
 <!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>San Valentín</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>San Valentín</title>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <main class="wrap">
+    <section class="card" aria-label="Tarjeta San Valentín">
+      <canvas id="scene"></canvas>
 
-<div class="card">
-  <canvas id="canvas"></canvas>
-
-  <div id="intro" class="intro">
-      <button id="startBtn" class="startBtn">
-          <div class="bigHeart">❤</div>
-          <div class="title">San Valentín</div>
-      </button>
-  </div>
-
-  <div id="content" class="content hidden">
-      <p id="text1" class="text"></p>
-      <p id="text2" class="text"></p>
-
-      <div class="timerBlock">
-          <div class="timerLabel">Mi amor por ti comenzó hace…</div>
-          <div id="timer" class="timer"></div>
+      <div id="intro" class="intro" onclick="window.__SV_START && window.__SV_START()">
+        <button id="startBtn" class="startBtn" aria-label="Iniciar animación" onclick="window.__SV_START && window.__SV_START()">
+          <span class="heartIcon">❤</span>
+          <span class="startText">San Valentín</span>
+          <span class="hint">Toca el corazón</span>
+        </button>
       </div>
-  </div>
-</div>
 
-<script src="script.js"></script>
+      <div id="content" class="content hidden" aria-live="polite">
+        <div class="topText">
+          <p id="line1" class="line title"></p>
+          <p id="line2" class="line body"></p>
+        </div>
+
+        <!-- Espacio reservado para el corazón (canvas) -->
+        <div class="heartSlot" aria-hidden="true"></div>
+
+        <div class="bottomText">
+          <div class="timer">
+            <span class="timerLabel">Mi amor por ti comenzó hace…</span>
+            <span id="timerValue" class="timerValue"></span>
+          </div>
+        </div>
+      </div>
+
+      <div id="toast" class="toast hidden" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <!-- Coloca un archivo llamado music.mp3 en la raíz del repo -->
+  <audio id="bgm" src="music.mp3" preload="auto" loop></audio>
+  <script src="script.js"></script>
 </body>
 </html>
