@@ -6,49 +6,31 @@
   --accent:#c61f3a;
   --ink:#2b1f1c;
 }
-
 *{ box-sizing:border-box; }
-
-html, body{
-  margin:0;
-  padding:0;
-  height:100%;
-}
+html, body{ margin:0; padding:0; height:100%; }
 
 body{
   font-family: 'Playfair Display', serif;
   color: var(--ink);
-
   background:
     radial-gradient(circle at 20% 20%, rgba(255,0,120,.25), transparent 40%),
     radial-gradient(circle at 70% 30%, rgba(255,0,200,.22), transparent 45%),
     radial-gradient(circle at 50% 80%, rgba(255,0,90,.18), transparent 55%),
     linear-gradient(180deg, var(--bg1), var(--bg2));
-
   display:flex;
   justify-content:center;
   align-items:center;
-
   min-height:100vh;
   overflow:hidden;
 }
 
-.frame{
-  width:100%;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  padding:18px;
-}
+.frame{ width:100%; display:flex; justify-content:center; align-items:center; padding:18px; }
 
-/* Tarjeta centrada responsive */
 .card{
   width:95vw;
   max-width:950px;
-
   height:85vh;
   max-height:700px;
-
   background:var(--card);
   border-radius:22px;
   box-shadow:var(--shadow);
@@ -56,134 +38,68 @@ body{
   overflow:hidden;
 }
 
-/* Canvas */
-#scene{
-  width:100%;
-  height:100%;
-  display:block;
-}
+#scene{ width:100%; height:100%; display:block; }
 
 /* Texto a la izquierda */
 .textLayer{
   position:absolute;
-  left:38px;
+  left:44px;
   top:92px;
-  right:38px;
-  max-width:460px; /* deja espacio al árbol */
+  right:44px;
+  max-width:520px;
   z-index:3;
-
   opacity:0;
   transform: translateY(10px);
-  transition: opacity 800ms ease, transform 800ms ease;
+  transition: opacity 650ms ease, transform 650ms ease;
 }
-
-.textLayer.show{
-  opacity:1;
-  transform: translateY(0);
-}
-
+.textLayer.show{ opacity:1; transform: translateY(0); }
 .hidden{ display:none; }
 
 .line{
-  font-family: 'Playfair Display', serif;
   font-size:22px;
   line-height:1.35;
   margin:0 0 14px 0;
   white-space:pre-wrap;
-
   opacity:0;
   transform: translateY(6px);
-  transition: opacity 600ms ease, transform 600ms ease;
+  transition: opacity 420ms ease, transform 420ms ease;
 }
+.line.visible{ opacity:1; transform: translateY(0); }
 
-.line.visible{
-  opacity:1;
-  transform: translateY(0);
-}
-
-/* Timer */
-.timer{
-  margin-top:18px;
-  padding-top:12px;
-  border-top:2px solid rgba(43,31,28,.25);
-}
-
-.timerLabel{
-  display:block;
-  font-size:14px;
-  opacity:.75;
-  margin-bottom:6px;
-}
-
-.timerValue{
-  font-size:28px;
-  font-weight:700;
-}
+.timer{ margin-top:18px; padding-top:12px; border-top:2px solid rgba(43,31,28,.25); }
+.timerLabel{ display:block; font-size:14px; opacity:.75; margin-bottom:6px; }
+.timerValue{ font-size:28px; font-weight:700; }
 
 /* Intro */
 .intro{
-  position:absolute;
-  inset:0;
-  display:flex;
-  justify-content:center;
-  align-items:center;
+  position:absolute; inset:0;
+  display:flex; justify-content:center; align-items:center;
   z-index:4;
 }
-
 .startBtn{
-  background:none;
-  border:none;
-  cursor:pointer;
-  text-align:center;
-  padding:14px 18px;
+  background:none; border:none; cursor:pointer; text-align:center; padding:14px 18px;
   animation: popIn 800ms ease both;
 }
-
 .heartIcon{
-  display:block;
-  font-size:60px;
-  color:var(--accent);
+  display:block; font-size:60px; color:var(--accent);
   filter: drop-shadow(0 10px 18px rgba(198,31,58,.25));
   animation: heartPulse 1400ms ease-in-out infinite;
 }
-
 .startText{
   display:block;
   font-family: 'Dancing Script', cursive;
-  font-size:40px;
-  font-weight:600;
-  color:var(--accent);
-  opacity:0;
-  transform: translateY(6px);
+  font-size:40px; font-weight:600; color:var(--accent);
+  opacity:0; transform: translateY(6px);
   animation: titleFade 900ms ease 120ms both;
 }
+.hint{ display:block; font-size:12px; opacity:.7; margin-top:6px; }
 
-.hint{
-  display:block;
-  font-size:12px;
-  opacity:.7;
-  margin-top:6px;
-}
+@keyframes popIn{ from{ transform: scale(.92); opacity:0; } to{ transform: scale(1); opacity:1; } }
+@keyframes heartPulse{ 0%,100%{ transform: scale(1); } 50%{ transform: scale(1.06); } }
+@keyframes titleFade{ from{ opacity:0; transform: translateY(10px); } to{ opacity:1; transform: translateY(0); } }
 
-/* Animaciones */
-@keyframes popIn{
-  from{ transform: scale(.92); opacity:0; }
-  to{ transform: scale(1); opacity:1; }
-}
-
-@keyframes heartPulse{
-  0%, 100%{ transform: scale(1); }
-  50%{ transform: scale(1.06); }
-}
-
-@keyframes titleFade{
-  from{ opacity:0; transform: translateY(10px); }
-  to{ opacity:1; transform: translateY(0); }
-}
-
-/* Mobile tweaks */
 @media (max-width: 520px){
-  .textLayer{ left:22px; right:22px; top:78px; max-width:360px; }
+  .textLayer{ left:22px; right:22px; top:76px; max-width:360px; }
   .line{ font-size:20px; }
   .timerValue{ font-size:24px; }
   .startText{ font-size:36px; }
