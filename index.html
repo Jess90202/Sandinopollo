@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>M & J</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Great+Vibes&display=swap" rel="stylesheet">
 
 <style>
 body{
@@ -14,7 +14,7 @@ body{
   display:flex;
   justify-content:center;
   align-items:center;
-  background:linear-gradient(180deg,#3a0030,#130010);
+  background:radial-gradient(circle at top,#4a003f,#150012 70%);
   font-family:'Playfair Display',serif;
   overflow:hidden;
 }
@@ -23,9 +23,9 @@ body{
   width:95vw;
   max-width:900px;
   height:90vh;
-  background:#f3e9df;
-  border-radius:22px;
-  box-shadow:0 20px 50px rgba(0,0,0,.3);
+  background:#f6efe7;
+  border-radius:24px;
+  box-shadow:0 25px 60px rgba(0,0,0,.4);
   display:flex;
   flex-direction:column;
   justify-content:center;
@@ -33,25 +33,29 @@ body{
   text-align:center;
   padding:30px;
   position:relative;
-  overflow:hidden;
 }
 
 .start{
   cursor:pointer;
-  user-select:none;
 }
 
 .start h1{
-  font-family:'Dancing Script',cursive;
-  font-size:60px;
-  color:#c61f3a;
+  font-family:'Great Vibes',cursive;
+  font-size:80px;
+  color:#b1123a;
   margin:0;
-  transition:transform .6s ease, opacity .6s ease;
+  letter-spacing:3px;
+  transition:all .8s ease;
 }
 
-.explode{
-  transform:scale(0);
+.start p{
+  margin-top:10px;
+  opacity:.7;
+}
+
+.fadeOut{
   opacity:0;
+  transform:scale(.5);
 }
 
 .content{
@@ -62,8 +66,9 @@ body{
 
 .text{
   max-width:650px;
-  margin-bottom:20px;
+  margin-bottom:18px;
   font-size:22px;
+  line-height:1.5;
 }
 
 .timer{
@@ -73,13 +78,41 @@ body{
 }
 
 .timer strong{
-  font-size:26px;
+  font-size:28px;
 }
 
-canvas{
-  width:300px;
+svg{
+  width:320px;
   height:300px;
   margin:20px 0;
+}
+
+#heartPath{
+  fill:none;
+  stroke:#b1123a;
+  stroke-width:3;
+  stroke-dasharray:1000;
+  stroke-dashoffset:1000;
+  animation:draw 2s ease forwards;
+}
+
+#heartFill{
+  fill:url(#grad);
+  opacity:0;
+  animation:fillHeart 2s ease 2s forwards, pulse 2.5s ease-in-out infinite 4s;
+}
+
+@keyframes draw{
+  to{stroke-dashoffset:0;}
+}
+
+@keyframes fillHeart{
+  to{opacity:1;}
+}
+
+@keyframes pulse{
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.05)}
 }
 
 @media(max-width:500px){
@@ -100,7 +133,19 @@ canvas{
 <p class="text">Para el amor de mi existencia:</p>
 <p class="text">Si pudiera elegir un lugar seguro sería a tu lado. Cuanto más tiempo estoy contigo más te amo.</p>
 
-<canvas id="heartCanvas"></canvas>
+<svg viewBox="0 0 512 512">
+<defs>
+<linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+<stop offset="0%" stop-color="#ff4d6d"/>
+<stop offset="50%" stop-color="#ff006e"/>
+<stop offset="100%" stop-color="#b1123a"/>
+</linearGradient>
+</defs>
+
+<path id="heartPath" d="M256 464s-192-128-192-256c0-70 50-112 112-112 44 0 80 28 80 28s36-28 80-28c62 0 112 42 112 112 0 128-192 256-192 256z"/>
+
+<path id="heartFill" d="M256 464s-192-128-192-256c0-70 50-112 112-112 44 0 80 28 80 28s36-28 80-28c62 0 112 42 112 112 0 128-192 256-192 256z"/>
+</svg>
 
 <div class="timer">
 <span>Mi amor por ti comenzó hace…</span><br>
@@ -117,60 +162,19 @@ canvas{
 const start = document.getElementById("start");
 const letters = document.getElementById("letters");
 const content = document.getElementById("content");
-const canvas = document.getElementById("heartCanvas");
-const ctx = canvas.getContext("2d");
 const counter = document.getElementById("counter");
 const music = document.getElementById("music");
 
 const START_DATE = new Date("2025-02-15T00:00:00");
 
-canvas.width = 300;
-canvas.height = 300;
-
-function insideHeart(x,y){
-  const a = x*x + y*y - 1;
-  return (a*a*a - x*x*y*y*y) <= 0;
-}
-
-function drawHeart(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  const particles = 1200;
-  const size = 120;
-  const cx = 150;
-  const cy = 160;
-
-  for(let i=0;i<particles;i++){
-    let x,y;
-    do{
-      x = Math.random()*2-1;
-      y = Math.random()*2-1;
-    }while(!insideHeart(x,y));
-
-    const px = cx + x*size;
-    const py = cy - y*size;
-
-    const gradient = ctx.createRadialGradient(px-3,py-3,2,px,py,6);
-    gradient.addColorStop(0,"#fff");
-    gradient.addColorStop(0.3,`hsl(${340+Math.random()*20},70%,60%)`);
-    gradient.addColorStop(1,"#8a0022");
-
-    ctx.fillStyle = gradient;
-    ctx.beginPath();
-    ctx.arc(px,py,4,0,Math.PI*2);
-    ctx.fill();
-  }
-}
-
 start.addEventListener("click", ()=>{
-  letters.classList.add("explode");
-
+  letters.classList.add("fadeOut");
   setTimeout(()=>{
     start.style.display="none";
     content.style.display="flex";
-    drawHeart();
     try{ music.play(); }catch(e){}
     startTimer();
-  },600);
+  },800);
 });
 
 function startTimer(){
