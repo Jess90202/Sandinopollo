@@ -6,21 +6,20 @@ const START_DATE = new Date("2025-02-15T00:00:00"); // <- cámbiala
 const PHRASES = [
   "Para el amor de mi existencia:",
   "Si pudiera elegir un lugar seguro sería a tu lado.
-Cuanto más tiempo estoy contigo más te amo.",
-  "" // tercera línea no se usa
+Cuanto más tiempo estoy contigo más te amo."
 ];
 
 const HEART_COLORS = ["#d3122f", "#ff2d55", "#ff5c8a", "#ff7aa6", "#ff8fb3", "#c2185b", "#b5179e"];
 
 // Timeline (rápido y controlado)
-const TRUNK_SECONDS  = 1.4;
-const HEARTS_SECONDS = 1.6;
-const SETTLE_SECONDS = 0.35;
+const TRUNK_SECONDS  = 1.2;
+const HEARTS_SECONDS = 1.15;
+const SETTLE_SECONDS = 0.25;
 
 // Letras (más lento y legible)
-const SPEED_TITLE = 140;
-const SPEED_BODY  = 95;
-const SPEED_SIGN  = 130;
+const SPEED_TITLE = 170;
+const SPEED_BODY  = 120;
+const SPEED_SIGN  = 160;
 
 // ============================
 // CANVAS
@@ -37,7 +36,7 @@ function resize(){
 }
 window.addEventListener("resize", () => {
   resize();
-  if (started) resetHearts(); // reacomoda en rotación/cambio tamaño
+  if (started){ resetHearts(); resetAmbient(); } // reacomoda en rotación/cambio tamaño
 });
 resize();
 
@@ -71,11 +70,12 @@ function layout(){
   const groundY = h * 0.84;
 
   if (isMobile()){
-    const treeX = w * 0.70;        // visible en móvil
+    // Móvil: árbol visible a la derecha (estilo video)
+    const treeX = w * 0.82;
     const treeY = groundY;
     const crownCx = treeX;
-    const crownCy = h * 0.42;      // más abajo para no chocar con texto
-    const heartSize = w * 0.20;    // grande
+    const crownCy = h * 0.47;
+    const heartSize = w * 0.19;
     return { w, h, groundY, treeX, treeY, crownCx, crownCy, heartSize };
   } else {
     const treeX = w * 0.84;
@@ -260,9 +260,46 @@ function drawHearts(progress){
 }
 
 // ============================
-// TEXTO
+// AMBIENT HEARTS (suaves, como en el video)
+// ============================
+const ambient = [];
+function resetAmbient(){
+  ambient.length = 0;
+  const { w, h } = layout();
+  const count = isMobile() ? 12 : 18;
+  for (let i=0;i<count;i++){
+    ambient.push({
+      x: w * (0.15 + Math.random()*0.55),
+      y: h * (0.58 + Math.random()*0.22),
+      vx: -0.10 - Math.random()*0.25,
+      vy: -0.15 - Math.random()*0.35,
+      s: 5 + Math.random()*6,
+      c: HEART_COLORS[(Math.random()*HEART_COLORS.length)|0],
+      rot: Math.random()*Math.PI*2,
+      vr: (-0.03 + Math.random()*0.06)
+    });
+  }
+}
+function stepAmbient(){
+  const { w, h } = layout();
+  for (const a of ambient){
+    a.x += a.vx * 2.0;
+    a.y += a.vy * 2.0;
+    a.rot += a.vr;
+    if (a.y < h*0.34 || a.x < -40){
+      a.x = w * (0.62 + Math.random()*0.25);
+      a.y = h * (0.78 + Math.random()*0.10);
+    }
+    drawTexturedHeart(a.x, a.y, a.s, a.c, a.rot);
+  }
+}
+
+// ============================
+// TEXTO (más parecido al video: palabra a palabra + cursor)
 // ============================
 let textStarted = false;
+
+function withCursor(s){ return s + " _"; }
 
 async function typeWords(el, text, speedMs){
   el.classList.add("visible");
@@ -270,8 +307,10 @@ async function typeWords(el, text, speedMs){
   const parts = text.split(/(\s+)/);
   for (const part of parts){
     el.textContent += part;
+    el.textContent = withCursor(el.textContent.replace(/\s_$/,""));
     await sleep(speedMs);
   }
+  el.textContent = el.textContent.replace(/\s_$/,"");
 }
 
 function showTextLayer(){
@@ -288,9 +327,7 @@ async function revealText(){
   await typeWords(line1, PHRASES[0], SPEED_TITLE);
   await sleep(650);
   await typeWords(line2, PHRASES[1], SPEED_BODY);
-  await sleep(720);
-  await typeWords(line3, PHRASES[2], SPEED_SIGN);
-  await sleep(500);
+  await sleep(450);
   startTimer();
 }
 
@@ -334,6 +371,7 @@ function render(ts){
 
     drawTrunk(1);
     drawHearts(heartsP);
+    stepAmbient();
 
     if (heartsP >= 1){
       const settleT = ht - HEARTS_SECONDS;
@@ -358,6 +396,7 @@ startBtn.addEventListener("click", async ()=>{
   await startMusic();
 
   resetHearts();
+  resetAmbient();
   started = true;
   tStart = performance.now();
   requestAnimationFrame(render);

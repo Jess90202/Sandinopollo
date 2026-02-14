@@ -107,7 +107,23 @@ body{
 
 /* Mobile: texto centrado, árbol visible */
 @media (max-width: 600px){
-  .card{ height:88vh; }
+  .card{ height:90vh; width:96vw; }
+
+  .textLayer{
+    left:16px;
+    top:38px;
+    width:62%;          /* reserva espacio al árbol */
+    max-width:none;
+  }
+
+  .line{ font-size:18px; line-height:1.38; }
+  .lineTitle{ text-align:left; }
+  .lineBody{ text-align:left; }
+  .lineSign{ text-align:left; }
+
+  .timerValue{ font-size:22px; }
+  .startText{ font-size:34px; }
+}
 
   .textLayer{
     left:18px;
@@ -127,6 +143,9 @@ body{
   .startText{ font-size:36px; }
 }
 
-
-/* Ocultar firma (línea 3) */
 #line3{ display:none; }
+
+/* Mejora legibilidad en móvil */
+@media (max-width: 600px){
+  .textLayer{ background: rgba(243,233,223,0.82); padding:10px 10px 8px; border-radius:14px; }
+}
