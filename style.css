@@ -6,6 +6,7 @@
   --accent:#c61f3a;
   --ink:#2b1f1c;
 }
+
 *{ box-sizing:border-box; }
 html, body{ margin:0; padding:0; height:100%; }
 
@@ -40,13 +41,13 @@ body{
 
 #scene{ width:100%; height:100%; display:block; }
 
-/* Texto SIEMPRE a la izquierda (no invade el árbol) */
+/* Desktop: texto a la izquierda */
 .textLayer{
   position:absolute;
   left:44px;
   top:92px;
-  width:58%;
-  max-width:520px;
+  width:56%;
+  max-width:540px;
   z-index:3;
 
   opacity:0;
@@ -66,6 +67,11 @@ body{
   transition: opacity 420ms ease, transform 420ms ease;
 }
 .line.visible{ opacity:1; transform: translateY(0); }
+
+/* Alineación */
+.lineTitle{ text-align:left; }
+.lineBody{ text-align:justify; text-justify:inter-word; }
+.lineSign{ text-align:left; }
 
 .timer{ margin-top:18px; padding-top:12px; border-top:2px solid rgba(43,31,28,.25); }
 .timerLabel{ display:block; font-size:14px; opacity:.75; margin-bottom:6px; }
@@ -99,9 +105,24 @@ body{
 @keyframes heartPulse{ 0%,100%{ transform: scale(1); } 50%{ transform: scale(1.06); } }
 @keyframes titleFade{ from{ opacity:0; transform: translateY(10px); } to{ opacity:1; transform: translateY(0); } }
 
-@media (max-width: 520px){
-  .textLayer{ left:22px; top:76px; width:62%; max-width:360px; }
+/* Mobile: texto centrado, árbol visible */
+@media (max-width: 600px){
+  .card{ height:88vh; }
+
+  .textLayer{
+    left:18px;
+    right:18px;
+    top:54px;
+    width:auto;
+    max-width:none;
+  }
+
   .line{ font-size:20px; }
+
+  .lineTitle{ text-align:center; }
+  .lineBody{ text-align:justify; }
+  .lineSign{ text-align:center; }
+
   .timerValue{ font-size:24px; }
   .startText{ font-size:36px; }
 }

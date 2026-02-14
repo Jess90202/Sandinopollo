@@ -1,3 +1,6 @@
+// ============================
+// CONFIG
+// ============================
 const START_DATE = new Date("2025-02-15T00:00:00"); // <- cámbiala
 
 const PHRASES = [
@@ -8,16 +11,19 @@ const PHRASES = [
 
 const HEART_COLORS = ["#d3122f", "#ff2d55", "#ff5c8a", "#ff7aa6", "#ff8fb3", "#c2185b", "#b5179e"];
 
-// Duración rápida
-const TRUNK_SECONDS  = 1.6;
-const HEARTS_SECONDS = 2.3;
-const SETTLE_SECONDS = 0.6;
+// Timeline (rápido y controlado)
+const TRUNK_SECONDS  = 1.4;
+const HEARTS_SECONDS = 1.6;
+const SETTLE_SECONDS = 0.35;
 
-// Letras más lentas
-const SPEED_TITLE = 120;
-const SPEED_BODY  = 85;
-const SPEED_SIGN  = 110;
+// Letras (más lento y legible)
+const SPEED_TITLE = 140;
+const SPEED_BODY  = 95;
+const SPEED_SIGN  = 130;
 
+// ============================
+// CANVAS
+// ============================
 const canvas = document.getElementById("scene");
 const ctx = canvas.getContext("2d");
 
@@ -28,9 +34,15 @@ function resize(){
   canvas.height = Math.floor(rect.height * dpr);
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
-window.addEventListener("resize", resize);
+window.addEventListener("resize", () => {
+  resize();
+  if (started) resetHearts(); // reacomoda en rotación/cambio tamaño
+});
 resize();
 
+// ============================
+// UI / AUDIO
+// ============================
 const intro = document.getElementById("intro");
 const startBtn = document.getElementById("startBtn");
 const bgm = document.getElementById("bgm");
@@ -41,21 +53,37 @@ const line3 = document.getElementById("line3");
 const timerValue = document.getElementById("timerValue");
 
 async function startMusic(){
-  try{ bgm.volume = 0.45; await bgm.play(); } catch(e){}
+  try{ bgm.volume = 0.45; await bgm.play(); }catch(e){}
 }
 function sleep(ms){ return new Promise(r=>setTimeout(r, ms)); }
+
+// ============================
+// LAYOUT: desktop vs mobile
+// ============================
+function isMobile(){
+  return canvas.getBoundingClientRect().width < 620;
+}
 
 function layout(){
   const w = canvas.getBoundingClientRect().width;
   const h = canvas.getBoundingClientRect().height;
   const groundY = h * 0.84;
 
-  const treeX = w * 0.86;
-  const treeY = groundY;
-  const crownCx = w * 0.86;
-  const crownCy = h * 0.34;
-
-  return { w, h, groundY, treeX, treeY, crownCx, crownCy };
+  if (isMobile()){
+    const treeX = w * 0.70;        // visible en móvil
+    const treeY = groundY;
+    const crownCx = treeX;
+    const crownCy = h * 0.42;      // más abajo para no chocar con texto
+    const heartSize = w * 0.20;    // grande
+    return { w, h, groundY, treeX, treeY, crownCx, crownCy, heartSize };
+  } else {
+    const treeX = w * 0.84;
+    const treeY = groundY;
+    const crownCx = treeX;
+    const crownCy = h * 0.34;
+    const heartSize = w * 0.17;
+    return { w, h, groundY, treeX, treeY, crownCx, crownCy, heartSize };
+  }
 }
 
 function drawGround(){
@@ -70,9 +98,12 @@ function drawGround(){
   ctx.restore();
 }
 
+// ============================
+// TRONCO
+// ============================
 function drawTrunk(progress){
   const { w, treeX, treeY, crownCy } = layout();
-  const maxH = (treeY - crownCy) * 0.95;
+  const maxH = (treeY - crownCy) * 0.98;
   const hh = maxH * progress;
 
   const baseW = w * 0.028;
@@ -90,10 +121,11 @@ function drawTrunk(progress){
   ctx.closePath();
   ctx.fill();
 
-  if (progress > 0.6){
+  if (progress > 0.55){
     ctx.strokeStyle = "#6f3a1f";
     ctx.lineWidth = 2;
-    const k = (progress - 0.6) / 0.4;
+    const k = (progress - 0.55) / 0.45;
+
     const branches = [
       {dx: -w*0.06, dy: -w*0.02},
       {dx:  w*0.06, dy: -w*0.02},
@@ -107,93 +139,77 @@ function drawTrunk(progress){
       ctx.stroke();
     });
   }
+
   ctx.restore();
 }
 
-// ===== Heart targets (filled) =====
+// ============================
+// HEART TARGETS: RELLENO + BORDE
+// ============================
 function insideHeart(nx, ny){
   const a = nx*nx + ny*ny - 1;
   return (a*a*a - nx*nx*ny*ny*ny) <= 0;
 }
-function generateHeartTargets(cx, cy, size, count){
-  const pts = [];
+
+function makeTargets(cx, cy, size, fillCount, outlineCount){
+  const fill = [];
   let guard = 0;
-  while (pts.length < count && guard < count * 60){
+  while (fill.length < fillCount && guard < fillCount * 80){
     guard++;
     const nx = (Math.random()*2.2 - 1.1);
     const ny = (Math.random()*2.2 - 1.1);
     if (insideHeart(nx, ny)){
-      pts.push({ x: cx + nx*size, y: cy - ny*size });
+      fill.push({ x: cx + nx*size, y: cy - ny*size });
     }
   }
-  return pts;
-}
-function generateOutlineTargets(cx, cy, size, count){
-  const pts = [];
-  for (let i=0;i<count;i++){
-    const t = (i/count) * Math.PI * 2;
+
+  const outline = [];
+  for (let i=0;i<outlineCount;i++){
+    const t = (i/outlineCount) * Math.PI * 2;
     const x = 16 * Math.pow(Math.sin(t),3);
     const y = 13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t);
-    pts.push({ x: cx + x*(size*0.085), y: cy - y*(size*0.085) });
+    outline.push({ x: cx + x*(size*0.085), y: cy - y*(size*0.085) });
   }
-  return pts;
+
+  return outline.concat(fill);
 }
 
+// ============================
+// PARTICULAS: pre-creadas + easing (ULTRA RÁPIDO)
+// ============================
 const particles = [];
 let targets = [];
-let outlineTargets = [];
-let startHeartsAt = 0;
 
 function rand(min,max){ return min + Math.random()*(max-min); }
 
-function spawnParticle(){
-  const { w, h } = layout();
-  // solo lado derecho (no tapa texto)
-  const x = w + 30;
-  const y = h * rand(0.22, 0.78);
+function resetHearts(){
+  particles.length = 0;
 
-  const useOutline = Math.random() < 0.32;
-  const t = useOutline
-    ? outlineTargets[(Math.random()*outlineTargets.length)|0]
-    : targets[(Math.random()*targets.length)|0];
+  const { w, h, crownCx, crownCy, heartSize } = layout();
+  targets = makeTargets(crownCx, crownCy, heartSize, 360, 240);
 
-  const s = rand(7, 12);
-  const c = HEART_COLORS[(Math.random()*HEART_COLORS.length)|0];
+  const N = 360; // pétalos totales
+  for (let i=0;i<N;i++){
+    const t = targets[i % targets.length];
 
-  particles.push({
-    x, y,
-    vx: rand(-3.3, -1.8),
-    vy: rand(-0.7, 0.7),
-    rot: rand(0, Math.PI*2),
-    vr: rand(-0.06, 0.06),
-    s, c,
-    tx: t.x + rand(-6,6),
-    ty: t.y + rand(-6,6),
-    settled: false
-  });
-}
+    const x0 = w + rand(20, 160);
+    const y0 = h * rand(0.24, 0.80);
 
-function updateParticles(dt, strength){
-  for (const p of particles){
-    const ax = (p.tx - p.x) * strength;
-    const ay = (p.ty - p.y) * strength;
-
-    p.vx = p.vx * 0.88 + ax * dt;
-    p.vy = p.vy * 0.88 + ay * dt;
-
-    p.x += p.vx * dt * 60;
-    p.y += p.vy * dt * 60;
-    p.rot += p.vr;
-
-    const dx = p.tx - p.x, dy = p.ty - p.y;
-    if (!p.settled && (dx*dx + dy*dy) < 55){
-      p.settled = true;
-      p.vx *= 0.12; p.vy *= 0.12; p.vr *= 0.12;
-    }
+    particles.push({
+      x0, y0, x: x0, y: y0,
+      tx: t.x + rand(-4,4),
+      ty: t.y + rand(-4,4),
+      s: rand(7, 12),
+      c: HEART_COLORS[(Math.random()*HEART_COLORS.length)|0],
+      rot: rand(0, Math.PI*2),
+      vr: rand(-0.05, 0.05)
+    });
   }
 }
 
-function heartPath(ctx, s){
+function easeOutCubic(x){ return 1 - Math.pow(1 - x, 3); }
+
+function heartPath(s){
   ctx.beginPath();
   ctx.moveTo(0, -s*0.25);
   ctx.bezierCurveTo( s*0.55, -s*0.95,  s*1.15, -s*0.05, 0, s);
@@ -211,7 +227,7 @@ function drawTexturedHeart(x,y,s,color,rot){
   g.addColorStop(0.22, color);
   g.addColorStop(1, "#7a0a1e");
 
-  heartPath(ctx, s);
+  heartPath(s);
   ctx.fillStyle = g;
   ctx.fill();
 
@@ -224,19 +240,27 @@ function drawTexturedHeart(x,y,s,color,rot){
 
   ctx.strokeStyle = "rgba(0,0,0,.06)";
   ctx.lineWidth = 1;
-  heartPath(ctx, s);
+  heartPath(s);
   ctx.stroke();
 
   ctx.restore();
 }
 
-function drawParticles(){
-  for (const p of particles){
-    drawTexturedHeart(p.x, p.y, p.s, p.c, p.rot);
+function drawHearts(progress){
+  const p = easeOutCubic(progress);
+  for (const h of particles){
+    h.x = h.x0 + (h.tx - h.x0) * p;
+    h.y = h.y0 + (h.ty - h.y0) * p;
+    h.rot += h.vr;
+
+    const flutter = (1 - p) * Math.sin((h.x0 + h.y0) * 0.02 + progress*14) * 2.0;
+    drawTexturedHeart(h.x, h.y + flutter, h.s, h.c, h.rot);
   }
 }
 
-// ===== Text =====
+// ============================
+// TEXTO
+// ============================
 let textStarted = false;
 
 async function typeWords(el, text, speedMs){
@@ -248,22 +272,24 @@ async function typeWords(el, text, speedMs){
     await sleep(speedMs);
   }
 }
+
 function showTextLayer(){
   textLayer.classList.remove("hidden");
   void textLayer.offsetWidth;
   textLayer.classList.add("show");
 }
+
 async function revealText(){
   if (textStarted) return;
   textStarted = true;
 
   showTextLayer();
   await typeWords(line1, PHRASES[0], SPEED_TITLE);
-  await sleep(600);
-  await typeWords(line2, PHRASES[1], SPEED_BODY);
   await sleep(650);
+  await typeWords(line2, PHRASES[1], SPEED_BODY);
+  await sleep(720);
   await typeWords(line3, PHRASES[2], SPEED_SIGN);
-  await sleep(450);
+  await sleep(500);
   startTimer();
 }
 
@@ -281,50 +307,36 @@ function startTimer(){
   setInterval(tick, 1000);
 }
 
-// ===== Timeline =====
+// ============================
+// TIMELINE
+// ============================
 let started = false;
 let tStart = 0;
 
 function render(ts){
   if (!started) return;
 
-  const { w, h, crownCx, crownCy } = layout();
+  const { w, h } = layout();
   ctx.clearRect(0,0,w,h);
   drawGround();
 
   const t = (ts - tStart) / 1000;
 
+  // 1) tronco
   const trunkP = Math.min(t / TRUNK_SECONDS, 1);
   drawTrunk(trunkP);
 
-  if (t >= TRUNK_SECONDS && outlineTargets.length === 0){
-    const size = w * 0.15;
-    targets = generateHeartTargets(crownCx, crownCy, size, 380);
-    outlineTargets = generateOutlineTargets(crownCx, crownCy, size, 220);
-    startHeartsAt = ts;
-
-    for (let i=0;i<30;i++) spawnParticle();
-  }
-
+  // 2) corazones
   if (t >= TRUNK_SECONDS){
-    const heartsT = (ts - startHeartsAt) / 1000;
-    const heartsP = Math.min(heartsT / HEARTS_SECONDS, 1);
+    const ht = t - TRUNK_SECONDS;
+    const heartsP = Math.min(ht / HEARTS_SECONDS, 1);
 
-    const targetCount = 260;
-    const shouldHave = Math.floor(targetCount * heartsP);
-
-    while (particles.length < shouldHave){
-      spawnParticle();
-    }
-
-    updateParticles(1/60, 0.0036);
-    drawParticles();
+    drawTrunk(1);
+    drawHearts(heartsP);
 
     if (heartsP >= 1){
-      const settleT = heartsT - HEARTS_SECONDS;
-      if (settleT < SETTLE_SECONDS){
-        updateParticles(1/60, 0.0045);
-      } else {
+      const settleT = ht - HEARTS_SECONDS;
+      if (settleT >= SETTLE_SECONDS){
         revealText();
       }
     }
@@ -333,14 +345,18 @@ function render(ts){
   requestAnimationFrame(render);
 }
 
+// ============================
+// START
+// ============================
 startBtn.addEventListener("click", async ()=>{
-  intro.style.transition = "opacity 280ms ease";
+  intro.style.transition = "opacity 260ms ease";
   intro.style.opacity = "0";
-  await sleep(260);
+  await sleep(240);
   intro.style.display = "none";
 
   await startMusic();
 
+  resetHearts();
   started = true;
   tStart = performance.now();
   requestAnimationFrame(render);
