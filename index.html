@@ -8,22 +8,49 @@
 <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
+:root{
+  --bg1:#3a0035;
+  --bg2:#120010;
+  --card:#140011;
+  --gold:#ffd37a;
+  --gold2:#ffefb0;
+  --ink:#ffffff;
+}
+*{box-sizing:border-box}
+html,body{height:100%; margin:0}
 body{
-  margin:0;
   height:100vh;
   display:flex;
   justify-content:center;
   align-items:center;
-  background:radial-gradient(circle at top,#3a0035,#120010 70%);
+  background:radial-gradient(circle at top,var(--bg1),var(--bg2) 70%);
   font-family:'Playfair Display',serif;
   overflow:hidden;
+}
+
+/* subtle bokeh */
+body::before{
+  content:"";
+  position:fixed; inset:0;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(255,225,160,.10), transparent 42%),
+    radial-gradient(circle at 75% 55%, rgba(255,255,255,.06), transparent 52%),
+    radial-gradient(circle at 55% 85%, rgba(255,200,220,.05), transparent 58%);
+  filter: blur(2px);
+  animation:bokeh 12s ease-in-out infinite alternate;
+  pointer-events:none;
+}
+@keyframes bokeh{
+  from{transform:translateY(0)}
+  to{transform:translateY(-35px)}
 }
 
 .card{
   width:95vw;
   max-width:900px;
   height:92vh;
-  background:#140011;
+  max-height:760px;
+  background:var(--card);
   border-radius:24px;
   box-shadow:0 25px 60px rgba(0,0,0,.6);
   display:flex;
@@ -33,57 +60,127 @@ body{
   text-align:center;
   padding:30px;
   position:relative;
-  color:white;
+  color:var(--ink);
+  overflow:hidden;
 }
 
+/* canvas for particles */
+#particles{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  pointer-events:none;
+  z-index:1;
+}
+
+/* Intro */
 .intro{
   cursor:pointer;
+  z-index:3;
 }
 .intro h1{
   font-family:'Great Vibes',cursive;
   font-size:90px;
-  color:#ffd700;
+  color:var(--gold2);
   margin:0;
-  transition:.6s ease;
+  letter-spacing:2px;
+  text-shadow:0 10px 30px rgba(255,215,0,.12);
+  transition:opacity .55s ease, transform .55s ease, filter .55s ease;
 }
 .intro p{
-  opacity:.7;
+  opacity:.72;
   margin-top:10px;
 }
 .fadeOut{
   opacity:0;
-  transform:scale(.4);
+  transform:scale(.70);
+  filter: blur(2px);
 }
 
+/* Content */
 .content{
   display:none;
   flex-direction:column;
   align-items:center;
+  z-index:3;
 }
 
 .text{
   max-width:650px;
-  margin-bottom:20px;
+  margin-bottom:18px;
   font-size:22px;
-  line-height:1.5;
+  line-height:1.55;
+  opacity:0;
+  transform:translateY(8px);
+  animation:fadeUp 900ms ease forwards;
+}
+.text:nth-child(2){ animation-delay: 260ms; }
+
+@keyframes fadeUp{
+  to{opacity:1; transform:translateY(0)}
 }
 
-svg{
-  width:340px;
-  height:320px;
-  margin:20px 0;
-  animation:heartbeat 2.5s ease-in-out infinite;
+/* Heart wrapper */
+.heartWrap{
+  position:relative;
+  width:360px;
+  max-width:78vw;
+  margin:18px 0 8px;
+  z-index:3;
 }
-
+.heartWrap svg{
+  width:100%;
+  height:auto;
+  display:block;
+  animation:heartbeat 2.6s ease-in-out infinite;
+  transform-origin:center;
+}
 @keyframes heartbeat{
   0%,100%{transform:scale(1)}
-  50%{transform:scale(1.06)}
+  50%{transform:scale(1.055)}
 }
 
+/* glossy + deep */
+#heartFill{
+  filter: drop-shadow(0 24px 34px rgba(255,215,120,.22)) drop-shadow(0 12px 24px rgba(255,0,90,.18));
+}
+
+/* realistic moving shine */
+.shine{
+  position:absolute;
+  inset:-35% -60%;
+  background:linear-gradient(115deg,
+    transparent 35%,
+    rgba(255,255,255,.0) 42%,
+    rgba(255,255,255,.45) 50%,
+    rgba(255,255,255,.0) 58%,
+    transparent 65%);
+  transform:translateX(-55%) rotate(2deg);
+  animation:shineMove 4.6s ease-in-out infinite 1.4s;
+  mix-blend-mode:screen;
+  pointer-events:none;
+  filter: blur(.2px);
+  opacity:.9;
+  /* clip to heart using CSS mask */
+  -webkit-mask: url(#);
+}
+
+/* We'll clip with SVG mask via inline <mask> and CSS uses clip-path not possible; use clipPath on a separate SVG overlay */
+@keyframes shineMove{
+  0%{transform:translateX(-65%) rotate(2deg); opacity:.0}
+  18%{opacity:.85}
+  55%{transform:translateX(65%) rotate(2deg); opacity:.85}
+  70%{opacity:0}
+  100%{transform:translateX(65%) rotate(2deg); opacity:0}
+}
+
+/* Timer */
 .timer{
-  margin-top:25px;
-  border-top:2px solid rgba(255,255,255,.2);
-  padding-top:18px;
+  margin-top:18px;
+  border-top:2px solid rgba(255,255,255,.16);
+  padding-top:16px;
+  z-index:3;
 }
 .timer span{
   display:block;
@@ -94,115 +191,223 @@ svg{
 .timer strong{
   font-size:26px;
   display:block;
+  letter-spacing:.3px;
 }
 
-canvas{
-  position:absolute;
-  inset:0;
-  pointer-events:none;
-}
-
-@media(max-width:500px){
-  .intro h1{font-size:70px}
+/* mobile */
+@media(max-width:520px){
+  .intro h1{font-size:72px}
   .text{font-size:19px}
+  .timer strong{font-size:22px}
 }
 </style>
 </head>
 <body>
 
-<div class="card">
+<div class="card" id="card">
+  <canvas id="particles"></canvas>
 
-<canvas id="particles"></canvas>
+  <div class="intro" id="intro">
+    <h1 id="letters">M & J</h1>
+    <p>Toca las letras</p>
+  </div>
 
-<div class="intro" id="intro">
-<h1 id="letters">M & J</h1>
-<p>Toca las letras</p>
-</div>
+  <div class="content" id="content">
+    <p class="text" id="t1">Para el amor de mi existencia:</p>
+    <p class="text" id="t2">Si pudiera elegir un lugar seguro sería a tu lado. Cuanto más tiempo estoy contigo más te amo.</p>
 
-<div class="content" id="content">
-<p class="text">Para el amor de mi existencia:</p>
-<p class="text">Si pudiera elegir un lugar seguro sería a tu lado. Cuanto más tiempo estoy contigo más te amo.</p>
+    <div class="heartWrap" id="heartWrap">
+      <!-- SVG heart -->
+      <svg viewBox="0 0 512 512" aria-hidden="true">
+        <defs>
+          <radialGradient id="mainGrad" cx="50%" cy="36%" r="72%">
+            <stop offset="0%" stop-color="#ffb3d1"/>
+            <stop offset="35%" stop-color="#ff2a7d"/>
+            <stop offset="70%" stop-color="#b20045"/>
+            <stop offset="100%" stop-color="#5a001f"/>
+          </radialGradient>
+          <linearGradient id="edgeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="rgba(255,255,255,.65)"/>
+            <stop offset="35%" stop-color="rgba(255,255,255,.0)"/>
+            <stop offset="100%" stop-color="rgba(0,0,0,.35)"/>
+          </linearGradient>
+          <clipPath id="heartClip">
+            <path id="heartShape" d="M256 464s-192-128-192-256c0-70 50-112 112-112 44 0 80 28 80 28s36-28 80-28c62 0 112 42 112 112 0 128-192 256-192 256z"/>
+          </clipPath>
+        </defs>
 
-<svg viewBox="0 0 512 512">
-<defs>
-<radialGradient id="mainGrad" cx="50%" cy="40%" r="70%">
-<stop offset="0%" stop-color="#ff9ac2"/>
-<stop offset="40%" stop-color="#ff006e"/>
-<stop offset="100%" stop-color="#6e0028"/>
-</radialGradient>
-</defs>
+        <path d="M256 464s-192-128-192-256c0-70 50-112 112-112 44 0 80 28 80 28s36-28 80-28c62 0 112 42 112 112 0 128-192 256-192 256z"
+              fill="url(#mainGrad)" id="heartFill"/>
 
-<path d="M256 464s-192-128-192-256c0-70 50-112 112-112 44 0 80 28 80 28s36-28 80-28c62 0 112 42 112 112 0 128-192 256-192 256z"
-fill="url(#mainGrad)"/>
+        <!-- subtle edge sheen -->
+        <path d="M256 464s-192-128-192-256c0-70 50-112 112-112 44 0 80 28 80 28s36-28 80-28c62 0 112 42 112 112 0 128-192 256-192 256z"
+              fill="url(#edgeGrad)" opacity=".25"/>
 
-<text x="50%" y="55%" text-anchor="middle" fill="white" font-size="60" font-family="Great Vibes">M ❤️ J</text>
-</svg>
+        <text x="50%" y="56%" text-anchor="middle" fill="white" font-size="64" font-family="Great Vibes">M ❤️ J</text>
+      </svg>
 
-<div class="timer">
-<span>Mi amor por ti comenzó hace…</span>
-<strong id="counter"></strong>
-</div>
+      <!-- Shine overlay clipped to heart using SVG clipPath via inline SVG -->
+      <svg viewBox="0 0 512 512" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none;">
+        <defs>
+          <clipPath id="heartClip2">
+            <path d="M256 464s-192-128-192-256c0-70 50-112 112-112 44 0 80 28 80 28s36-28 80-28c62 0 112 42 112 112 0 128-192 256-192 256z"/>
+          </clipPath>
+          <linearGradient id="shineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="rgba(255,255,255,0)"/>
+            <stop offset="45%" stop-color="rgba(255,255,255,0)"/>
+            <stop offset="50%" stop-color="rgba(255,255,255,0.55)"/>
+            <stop offset="55%" stop-color="rgba(255,255,255,0)"/>
+            <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+          </linearGradient>
+        </defs>
+        <g clip-path="url(#heartClip2)">
+          <rect id="shineRect" x="-600" y="0" width="1200" height="512" fill="url(#shineGrad)" opacity="0.0"/>
+        </g>
+      </svg>
+    </div>
 
-</div>
+    <div class="timer">
+      <span>Mi amor por ti comenzó hace…</span>
+      <strong id="counter"></strong>
+    </div>
+  </div>
 
-<audio id="music" src="music.mp3" preload="auto" loop></audio>
-
+  <!-- Add music.mp3 next to index.html in your repo -->
+  <audio id="music" src="music.mp3" preload="auto" loop></audio>
 </div>
 
 <script>
+const card = document.getElementById("card");
 const intro = document.getElementById("intro");
 const letters = document.getElementById("letters");
 const content = document.getElementById("content");
 const counter = document.getElementById("counter");
 const music = document.getElementById("music");
+
 const canvas = document.getElementById("particles");
 const ctx = canvas.getContext("2d");
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+const START_DATE = new Date("2025-02-15T00:00:00"); // <- cámbiala
 
-const START_DATE = new Date("2025-02-15T00:00:00");
+// ===== Canvas sizing to CARD (not window) =====
+function resizeCanvas(){
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const r = card.getBoundingClientRect();
+  canvas.width = Math.floor(r.width * dpr);
+  canvas.height = Math.floor(r.height * dpr);
+  canvas.style.width = r.width + "px";
+  canvas.style.height = r.height + "px";
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
 
-intro.addEventListener("click", ()=>{
-  letters.classList.add("fadeOut");
-  explodeParticles();
-  setTimeout(()=>{
-    intro.style.display="none";
-    content.style.display="flex";
-    try{music.play();}catch(e){}
-  },600);
-});
+// ===== Particles: continuous float + bursts =====
+const floaters = [];
+const bursts = [];
+let running = false;
 
-let particles=[];
+function rand(min,max){ return min + Math.random()*(max-min); }
 
-function explodeParticles(){
-  for(let i=0;i<80;i++){
-    particles.push({
-      x: canvas.width/2,
-      y: canvas.height/2,
-      vx:(Math.random()-0.5)*6,
-      vy:(Math.random()-0.5)*6,
-      alpha:1
+function seedFloaters(n){
+  floaters.length = 0;
+  const w = canvas.clientWidth;
+  const h = canvas.clientHeight;
+  for(let i=0;i<n;i++){
+    floaters.push({
+      x: rand(0,w),
+      y: rand(0,h),
+      r: rand(0.8, 2.2),
+      vx: rand(-0.15, 0.15),
+      vy: rand(-0.35, -0.10),
+      a: rand(0.10, 0.35),
+      tw: rand(0, Math.PI*2),
+      tws: rand(0.008, 0.02)
+    });
+  }
+}
+seedFloaters(90);
+
+function burst(x,y,count=90){
+  for(let i=0;i<count;i++){
+    bursts.push({
+      x, y,
+      vx: rand(-2.8, 2.8),
+      vy: rand(-3.4, 2.0),
+      r: rand(1.2, 3.2),
+      a: 1.0,
+      g: rand(0.04, 0.065) // gravity
     });
   }
 }
 
-function animate(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  particles.forEach(p=>{
-    p.x+=p.vx;
-    p.y+=p.vy;
-    p.alpha-=0.01;
-    ctx.fillStyle="rgba(255,215,0,"+p.alpha+")";
-    ctx.beginPath();
-    ctx.arc(p.x,p.y,4,0,Math.PI*2);
-    ctx.fill();
-  });
-  particles=particles.filter(p=>p.alpha>0);
-  requestAnimationFrame(animate);
-}
-animate();
+function drawParticles(){
+  const w = canvas.clientWidth;
+  const h = canvas.clientHeight;
+  ctx.clearRect(0,0,w,h);
 
+  // floaters
+  for(const p of floaters){
+    p.tw += p.tws;
+    p.x += p.vx;
+    p.y += p.vy;
+    if(p.y < -20){ p.y = h + 20; p.x = rand(0,w); }
+    if(p.x < -20) p.x = w + 20;
+    if(p.x > w + 20) p.x = -20;
+
+    const alpha = p.a + Math.sin(p.tw)*0.08;
+    ctx.fillStyle = `rgba(255, 215, 120, ${Math.max(0,alpha)})`;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+    ctx.fill();
+  }
+
+  // bursts
+  for(let i=bursts.length-1;i>=0;i--){
+    const b = bursts[i];
+    b.vy += b.g;
+    b.x += b.vx;
+    b.y += b.vy;
+    b.a -= 0.012;
+
+    ctx.fillStyle = `rgba(255, 228, 140, ${Math.max(0,b.a)})`;
+    ctx.beginPath();
+    ctx.arc(b.x, b.y, b.r, 0, Math.PI*2);
+    ctx.fill();
+
+    if(b.a <= 0) bursts.splice(i,1);
+  }
+
+  if(running) requestAnimationFrame(drawParticles);
+}
+
+// ===== Shine animation inside heart (rect sweeps) =====
+const shineRect = document.getElementById("shineRect");
+let shineStart = 0;
+function animateShine(ts){
+  if(!running) return;
+  if(!shineStart) shineStart = ts;
+  const t = (ts - shineStart) / 1000;
+  // cycle ~4.8s
+  const cycle = 4.8;
+  const p = (t % cycle) / cycle;
+
+  // fade in/out
+  let opacity = 0;
+  if(p < 0.12) opacity = p/0.12 * 0.65;
+  else if(p < 0.55) opacity = 0.65;
+  else if(p < 0.70) opacity = (1-(p-0.55)/0.15) * 0.65;
+  else opacity = 0;
+
+  // sweep from left to right
+  const x = -600 + p * 1200;
+  shineRect.setAttribute("x", x.toFixed(2));
+  shineRect.setAttribute("opacity", opacity.toFixed(3));
+
+  requestAnimationFrame(animateShine);
+}
+
+// ===== Timer =====
 function startTimer(){
   function update(){
     const diff = new Date() - START_DATE;
@@ -211,13 +416,39 @@ function startTimer(){
     const hours = Math.floor((total%86400)/3600);
     const minutes = Math.floor((total%3600)/60);
     const seconds = total%60;
-    counter.textContent = days+" días "+hours+" horas "+minutes+" minutos "+seconds+" segundos";
+    counter.textContent = `${days} días ${hours} horas ${minutes} minutos ${seconds} segundos`;
   }
   update();
-  setInterval(update,1000);
+  setInterval(update, 1000);
 }
-startTimer();
-</script>
 
+// ===== Start sequence (stable click) =====
+function start(){
+  if(running) return;
+  running = true;
+
+  letters.classList.add("fadeOut");
+
+  // burst from center of card (where letters are)
+  const r = card.getBoundingClientRect();
+  burst(r.width/2, r.height/2, 120);
+
+  setTimeout(()=>{
+    intro.style.display="none";
+    content.style.display="flex";
+    // start particles + shine + timer
+    drawParticles();
+    requestAnimationFrame(animateShine);
+    startTimer();
+
+    // music (works only after user gesture)
+    try{ music.volume = 0.55; music.play(); }catch(e){}
+  }, 620);
+}
+
+// robust handlers
+intro.addEventListener("click", start);
+intro.addEventListener("pointerup", (e)=>{ e.preventDefault(); start(); });
+</script>
 </body>
 </html>
