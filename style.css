@@ -126,3 +126,7 @@ body{
   .timerValue{ font-size:24px; }
   .startText{ font-size:36px; }
 }
+
+
+/* Ocultar firma (línea 3) */
+#line3{ display:none; }

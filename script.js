@@ -4,9 +4,10 @@
 const START_DATE = new Date("2025-02-15T00:00:00"); // <- cámbiala
 
 const PHRASES = [
-  "Para el amor de mi vida:",
-  "Si pudiera elegir un lugar seguro, sería a tu lado.\nCuanto más tiempo estoy contigo, más te amo.",
-  "— Te amo mi amorcito"
+  "Para el amor de mi existencia:",
+  "Si pudiera elegir un lugar seguro sería a tu lado.
+Cuanto más tiempo estoy contigo más te amo.",
+  "" // tercera línea no se usa
 ];
 
 const HEART_COLORS = ["#d3122f", "#ff2d55", "#ff5c8a", "#ff7aa6", "#ff8fb3", "#c2185b", "#b5179e"];
