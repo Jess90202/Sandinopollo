@@ -40,14 +40,15 @@ body{
 
 #scene{ width:100%; height:100%; display:block; }
 
-/* Texto a la izquierda */
+/* Texto SIEMPRE a la izquierda (no invade el árbol) */
 .textLayer{
   position:absolute;
   left:44px;
   top:92px;
-  right:44px;
+  width:58%;
   max-width:520px;
   z-index:3;
+
   opacity:0;
   transform: translateY(10px);
   transition: opacity 650ms ease, transform 650ms ease;
@@ -99,7 +100,7 @@ body{
 @keyframes titleFade{ from{ opacity:0; transform: translateY(10px); } to{ opacity:1; transform: translateY(0); } }
 
 @media (max-width: 520px){
-  .textLayer{ left:22px; right:22px; top:76px; max-width:360px; }
+  .textLayer{ left:22px; top:76px; width:62%; max-width:360px; }
   .line{ font-size:20px; }
   .timerValue{ font-size:24px; }
   .startText{ font-size:36px; }
