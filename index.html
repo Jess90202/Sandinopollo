@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>San Valentín</title>
+<title>M & J</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
 
@@ -16,11 +16,12 @@ body{
   align-items:center;
   background:linear-gradient(180deg,#3a0030,#130010);
   font-family:'Playfair Display',serif;
+  overflow:hidden;
 }
 
 .card{
   width:95vw;
-  max-width:850px;
+  max-width:900px;
   height:90vh;
   background:#f3e9df;
   border-radius:22px;
@@ -37,17 +38,20 @@ body{
 
 .start{
   cursor:pointer;
+  user-select:none;
 }
 
 .start h1{
   font-family:'Dancing Script',cursive;
-  font-size:48px;
+  font-size:60px;
   color:#c61f3a;
-  margin-top:15px;
+  margin:0;
+  transition:transform .6s ease, opacity .6s ease;
 }
 
-.start p{
-  opacity:.7;
+.explode{
+  transform:scale(0);
+  opacity:0;
 }
 
 .content{
@@ -72,20 +76,10 @@ body{
   font-size:26px;
 }
 
-svg{
-  width:280px;
-  height:260px;
+canvas{
+  width:300px;
+  height:300px;
   margin:20px 0;
-}
-
-#heartFill{
-  transform-origin:center;
-  transform:scale(0);
-  transition:transform 1.2s ease;
-}
-
-.showHeart #heartFill{
-  transform:scale(1);
 }
 
 @media(max-width:500px){
@@ -98,29 +92,15 @@ svg{
 <div class="card">
 
 <div class="start" id="start">
-<svg viewBox="0 0 100 90">
-  <path d="M50 80 L10 40 A20 20 0 0 1 50 20 A20 20 0 0 1 90 40 Z"
-        fill="#ff4d6d"/>
-</svg>
-<h1>San Valentín</h1>
-<p>Toca el corazón</p>
+<h1 id="letters">M & J</h1>
+<p>Toca las letras</p>
 </div>
 
 <div class="content" id="content">
 <p class="text">Para el amor de mi existencia:</p>
 <p class="text">Si pudiera elegir un lugar seguro sería a tu lado. Cuanto más tiempo estoy contigo más te amo.</p>
 
-<svg viewBox="0 0 100 90" id="heartSVG">
-  <defs>
-    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#ff4d6d"/>
-      <stop offset="50%" stop-color="#ff006e"/>
-      <stop offset="100%" stop-color="#c9184a"/>
-    </linearGradient>
-  </defs>
-  <path d="M50 80 L10 40 A20 20 0 0 1 50 20 A20 20 0 0 1 90 40 Z"
-        fill="url(#grad)" id="heartFill"/>
-</svg>
+<canvas id="heartCanvas"></canvas>
 
 <div class="timer">
 <span>Mi amor por ti comenzó hace…</span><br>
@@ -135,21 +115,62 @@ svg{
 
 <script>
 const start = document.getElementById("start");
+const letters = document.getElementById("letters");
 const content = document.getElementById("content");
+const canvas = document.getElementById("heartCanvas");
+const ctx = canvas.getContext("2d");
 const counter = document.getElementById("counter");
-const heartFill = document.getElementById("heartFill");
 const music = document.getElementById("music");
 
 const START_DATE = new Date("2025-02-15T00:00:00");
 
+canvas.width = 300;
+canvas.height = 300;
+
+function insideHeart(x,y){
+  const a = x*x + y*y - 1;
+  return (a*a*a - x*x*y*y*y) <= 0;
+}
+
+function drawHeart(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  const particles = 1200;
+  const size = 120;
+  const cx = 150;
+  const cy = 160;
+
+  for(let i=0;i<particles;i++){
+    let x,y;
+    do{
+      x = Math.random()*2-1;
+      y = Math.random()*2-1;
+    }while(!insideHeart(x,y));
+
+    const px = cx + x*size;
+    const py = cy - y*size;
+
+    const gradient = ctx.createRadialGradient(px-3,py-3,2,px,py,6);
+    gradient.addColorStop(0,"#fff");
+    gradient.addColorStop(0.3,`hsl(${340+Math.random()*20},70%,60%)`);
+    gradient.addColorStop(1,"#8a0022");
+
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    ctx.arc(px,py,4,0,Math.PI*2);
+    ctx.fill();
+  }
+}
+
 start.addEventListener("click", ()=>{
-  start.style.display="none";
-  content.style.display="flex";
+  letters.classList.add("explode");
+
   setTimeout(()=>{
-    document.getElementById("heartSVG").classList.add("showHeart");
-  },200);
-  try{ music.play(); }catch(e){}
-  startTimer();
+    start.style.display="none";
+    content.style.display="flex";
+    drawHeart();
+    try{ music.play(); }catch(e){}
+    startTimer();
+  },600);
 });
 
 function startTimer(){
