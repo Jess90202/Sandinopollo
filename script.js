@@ -290,6 +290,8 @@ async function startMusic(){
 }
 
 function start(){
+  showToast("Iniciando…", 900);
+
   if (started) return; // evita doble inicio
   intro.style.transition = "opacity 260ms ease";
   intro.style.opacity = "0";
@@ -313,3 +315,15 @@ startBtn.addEventListener("pointerup", (e)=>{
   e.preventDefault();
   start();
 });
+
+
+// Exponer para onclick fallback
+window.__SV_START = start;
+// Captura global por si el botón no recibe el evento
+document.addEventListener('click', (e)=>{
+  const t = e.target;
+  if (!t) return;
+  if (t.closest && (t.closest('#startBtn') || t.closest('#intro'))){
+    start();
+  }
+}, true);

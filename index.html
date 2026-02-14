@@ -12,8 +12,8 @@
     <section class="card" aria-label="Tarjeta San Valentín">
       <canvas id="scene"></canvas>
 
-      <div id="intro" class="intro">
-        <button id="startBtn" class="startBtn" aria-label="Iniciar animación">
+      <div id="intro" class="intro" onclick="window.__SV_START && window.__SV_START()">
+        <button id="startBtn" class="startBtn" aria-label="Iniciar animación" onclick="window.__SV_START && window.__SV_START()">
           <span class="heartIcon">❤</span>
           <span class="startText">San Valentín</span>
           <span class="hint">Toca el corazón</span>
