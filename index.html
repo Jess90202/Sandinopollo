@@ -1,37 +1,45 @@
 <!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>San Valentín</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>San Valentín</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <main class="wrap">
+    <section class="card" aria-label="Tarjeta San Valentín">
+      <canvas id="scene"></canvas>
 
-<div class="card">
-  <canvas id="scene"></canvas>
-
-  <div id="intro" class="intro">
-      <button id="startBtn" class="startBtn">
-          <span class="heart">❤</span>
-          <span class="title">San Valentín</span>
-      </button>
-  </div>
-
-  <div id="textLayer" class="textLayer hidden">
-      <p id="line1" class="line"></p>
-      <p id="line2" class="line"></p>
-
-      <div class="timer">
-          <span class="timerLabel">Mi amor por ti comenzó hace…</span>
-          <span id="timerValue" class="timerValue"></span>
+      <div id="intro" class="intro">
+        <button id="startBtn" class="startBtn" aria-label="Iniciar animación">
+          <span class="heartIcon">❤</span>
+          <span class="startText">San Valentín</span>
+          <span class="hint">Toca el corazón</span>
+        </button>
       </div>
-  </div>
-</div>
 
-<audio id="bgm" src="music.mp3" loop></audio>
-<script src="script.js"></script>
+      <div id="content" class="content hidden" aria-live="polite">
+        <div class="topText">
+          <p id="line1" class="line lineTitle"></p>
+          <p id="line2" class="line lineBody"></p>
+        </div>
+
+        <div class="midHeart" aria-hidden="true"></div>
+
+        <div class="bottomText">
+          <div class="timer">
+            <span class="timerLabel">Mi amor por ti comenzó hace…</span>
+            <span id="timerValue" class="timerValue"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <audio id="bgm" src="music.mp3" preload="auto" loop></audio>
+  <script src="script.js"></script>
 </body>
 </html>
