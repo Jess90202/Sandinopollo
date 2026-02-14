@@ -1,0 +1,64 @@
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:#2a0020;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+.card{
+  width:90vw;
+  max-width:900px;
+  aspect-ratio:16/9;
+  background:#f3e9df;
+  border-radius:20px;
+  position:relative;
+  overflow:hidden;
+}
+canvas{
+  width:100%;
+  height:100%;
+}
+.intro{
+  position:absolute;
+  inset:0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+.startBtn{
+  background:none;
+  border:none;
+  cursor:pointer;
+  text-align:center;
+}
+.heartIcon{
+  font-size:60px;
+  color:#c61f3a;
+}
+.startText{
+  display:block;
+  font-size:28px;
+  font-weight:bold;
+  color:#c61f3a;
+}
+.hint{
+  font-size:12px;
+  opacity:.7;
+}
+.textLayer{
+  position:absolute;
+  left:40px;
+  top:100px;
+  max-width:400px;
+}
+.hidden{display:none;}
+.line{
+  font-size:20px;
+  margin-bottom:10px;
+}
+.timer{
+  margin-top:20px;
+  font-weight:bold;
+}

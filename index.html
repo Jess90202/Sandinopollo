@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>San Valentín</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="bg"></div>
+
+  <main class="frame">
+    <section class="card">
+      <canvas id="scene"></canvas>
+
+      <div id="intro" class="intro">
+        <button id="startBtn" class="startBtn">
+          <span class="heartIcon">❤</span>
+          <span class="startText">San Valentín</span>
+          <span class="hint">Toca el corazón</span>
+        </button>
+      </div>
+
+      <div id="textLayer" class="textLayer hidden">
+        <p id="line1" class="line"></p>
+        <p id="line2" class="line"></p>
+        <p id="line3" class="line"></p>
+
+        <div class="timer">
+          <span class="timerLabel">En nuestra casa han pasado…</span>
+          <span id="timerValue" class="timerValue"></span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <audio id="bgm" src="music.mp3" preload="auto" loop></audio>
+
+  <script src="script.js"></script>
+</body>
+</html>
