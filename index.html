@@ -4,29 +4,144 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>San Valentín</title>
+
   <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css" />
+
+  <style>
+    :root{
+      --card:#f3e9df;
+      --bg1:#3a0030;
+      --bg2:#130010;
+      --shadow:0 20px 50px rgba(0,0,0,.25);
+      --accent:#c61f3a;
+      --ink:#2b1f1c;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0}
+    body{
+      font-family:'Playfair Display',serif;
+      color:var(--ink);
+      background:
+        radial-gradient(circle at 20% 20%, rgba(255,0,120,.25), transparent 40%),
+        radial-gradient(circle at 70% 30%, rgba(255,0,200,.22), transparent 45%),
+        radial-gradient(circle at 50% 80%, rgba(255,0,90,.18), transparent 55%),
+        linear-gradient(180deg,var(--bg1),var(--bg2));
+      display:flex; align-items:center; justify-content:center;
+      overflow:hidden;
+    }
+    .wrap{width:100%; padding:18px; display:flex; justify-content:center;}
+    .card{
+      width:95vw; max-width:920px;
+      height:90vh; max-height:740px;
+      background:var(--card);
+      border-radius:22px;
+      box-shadow:var(--shadow);
+      position:relative; overflow:hidden;
+    }
+
+    /* Canvas must NOT block touches */
+    #scene{
+      width:100%; height:100%; display:block;
+      pointer-events:none;
+    }
+
+    .intro{
+      position:absolute; inset:0;
+      display:flex; align-items:center; justify-content:center;
+      z-index:10;
+    }
+    .startBtn{
+      background:none; border:none;
+      cursor:pointer; text-align:center;
+      padding:14px 18px;
+      touch-action:manipulation;
+    }
+    .heartIcon{
+      display:block; font-size:64px; color:var(--accent);
+      filter: drop-shadow(0 10px 18px rgba(198,31,58,.25));
+      animation: pulse 1.4s ease-in-out infinite;
+    }
+    .startText{
+      display:block;
+      font-family:'Dancing Script',cursive;
+      font-size:42px; color:var(--accent);
+      opacity:0; transform:translateY(8px);
+      animation: fadeUp 900ms ease 120ms both;
+    }
+    .hint{display:block; font-size:12px; opacity:.72; margin-top:6px;}
+    @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+    @keyframes fadeUp{from{opacity:0; transform:translateY(12px)}to{opacity:1; transform:translateY(0)}}
+
+    .content{
+      position:absolute; inset:0;
+      padding:52px 22px 40px;
+      display:flex; flex-direction:column; align-items:center;
+      gap:18px;
+      z-index:6;
+      opacity:0; transform:translateY(8px);
+      transition:opacity 650ms ease, transform 650ms ease;
+      pointer-events:none;
+    }
+    .content.show{opacity:1; transform:translateY(0);}
+    .hidden{display:none;}
+
+    .topText{width:min(720px, 92%);}
+    .line{margin:0 0 14px 0; white-space:pre-wrap; opacity:0; transform:translateY(6px);
+      transition:opacity 420ms ease, transform 420ms ease;
+    }
+    .line.visible{opacity:1; transform:translateY(0);}
+    .title{font-size:30px; text-align:center;}
+    .body{font-size:22px; line-height:1.42; text-align:justify; text-justify:inter-word;}
+
+    .heartSlot{ width:min(520px, 82vw); height:min(360px, 36vh); }
+
+    .bottomText{width:min(720px, 92%);}
+    .timer{
+      width:100%;
+      border-top:2px solid rgba(43,31,28,.25);
+      padding-top:12px;
+      text-align:center;
+    }
+    .timerLabel{display:block; font-size:14px; opacity:.76; margin-bottom:6px;}
+    .timerValue{font-size:30px; font-weight:700;}
+
+    .toast{
+      position:absolute; left:50%; bottom:18px; transform:translateX(-50%);
+      background:rgba(0,0,0,.75); color:#fff;
+      padding:10px 12px; border-radius:12px;
+      font-size:12px;
+      z-index:20;
+    }
+
+    @media (max-width:520px){
+      .content{padding:40px 16px 30px; gap:14px;}
+      .title{font-size:26px;}
+      .body{font-size:19px; text-align:left;}
+      .timerValue{font-size:24px;}
+      .heartSlot{height:min(320px, 34vh);}
+    }
+  </style>
 </head>
 <body>
   <main class="wrap">
-    <section class="card" aria-label="Tarjeta San Valentín">
+    <section class="card">
       <canvas id="scene"></canvas>
 
-      <div id="intro" class="intro" onclick="window.__SV_START && window.__SV_START()">
-        <button id="startBtn" class="startBtn" aria-label="Iniciar animación" onclick="window.__SV_START && window.__SV_START()">
+      <!-- INLINE onclick fallback so it works even if listeners fail -->
+      <div id="intro" class="intro">
+        <button id="startBtn" class="startBtn" onclick="window.__START__ && window.__START__()">
           <span class="heartIcon">❤</span>
-          <span class="startText">San Valentín</span>
-          <span class="hint">Toca el corazón</span>
+          <span id="startText" class="startText">San Valentín</span>
+          <span class="hint" id="hint">Toca el corazón</span>
         </button>
       </div>
 
-      <div id="content" class="content hidden" aria-live="polite">
+      <div id="content" class="content hidden">
         <div class="topText">
           <p id="line1" class="line title"></p>
           <p id="line2" class="line body"></p>
         </div>
 
-        <!-- Espacio reservado para el corazón (canvas) -->
         <div class="heartSlot" aria-hidden="true"></div>
 
         <div class="bottomText">
@@ -37,12 +152,264 @@
         </div>
       </div>
 
-      <div id="toast" class="toast hidden" aria-live="polite"></div>
+      <div id="toast" class="toast hidden"></div>
+
+      <!-- Put music.mp3 next to this index.html -->
+      <audio id="bgm" src="music.mp3" preload="auto" loop></audio>
     </section>
   </main>
 
-  <!-- Coloca un archivo llamado music.mp3 en la raíz del repo -->
-  <audio id="bgm" src="music.mp3" preload="auto" loop></audio>
-  <script src="script.js"></script>
+<script>
+/* Single-file build (no script.js) so GitHub Pages cannot "miss" assets */
+const START_DATE = new Date("2025-02-15T00:00:00"); // <- cámbiala
+
+const PHRASES = [
+  "Para el amor de mi existencia:",
+  "Si pudiera elegir un lugar seguro sería a tu lado.\nCuanto más tiempo estoy contigo más te amo."
+];
+
+const HEART_COLORS = ["#d3122f","#ff2d55","#ff5c8a","#ff7aa6","#ff8fb3","#c2185b","#b5179e","#ff4d6d","#ff006e","#f72585"];
+const HEART_BUILD_SECONDS = 1.25;
+const SPEED_TITLE = 140;
+const SPEED_BODY  = 95;
+
+const canvas = document.getElementById("scene");
+const ctx = canvas.getContext("2d");
+const intro = document.getElementById("intro");
+const startBtn = document.getElementById("startBtn");
+const startText = document.getElementById("startText");
+const hint = document.getElementById("hint");
+const bgm = document.getElementById("bgm");
+const content = document.getElementById("content");
+const line1 = document.getElementById("line1");
+const line2 = document.getElementById("line2");
+const timerValue = document.getElementById("timerValue");
+const toast = document.getElementById("toast");
+
+function sleep(ms){ return new Promise(r=>setTimeout(r, ms)); }
+function showToast(msg, ms=1800){
+  toast.textContent = msg;
+  toast.classList.remove("hidden");
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(()=>toast.classList.add("hidden"), ms);
+}
+
+function resize(){
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = Math.floor(rect.width * dpr);
+  canvas.height = Math.floor(rect.height * dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  if (started) resetHeartParticles();
+}
+window.addEventListener("resize", resize);
+resize();
+
+function insideHeart(nx, ny){
+  const a = nx*nx + ny*ny - 1;
+  return (a*a*a - nx*nx*ny*ny*ny) <= 0;
+}
+function makeTargets(cx, cy, size, fillCount, outlineCount){
+  const fill = [];
+  let guard = 0;
+  while (fill.length < fillCount && guard < fillCount * 120){
+    guard++;
+    const nx = (Math.random()*2.2 - 1.1);
+    const ny = (Math.random()*2.2 - 1.1);
+    if (insideHeart(nx, ny)){
+      fill.push({ x: cx + nx*size, y: cy - ny*size });
+    }
+  }
+  const outline = [];
+  for (let i=0;i<outlineCount;i++){
+    const t = (i/outlineCount) * Math.PI * 2;
+    const x = 16 * Math.pow(Math.sin(t),3);
+    const y = 13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t);
+    outline.push({ x: cx + x*(size*0.085), y: cy - y*(size*0.085) });
+  }
+  return outline.concat(fill);
+}
+function easeOutCubic(x){ return 1 - Math.pow(1-x, 3); }
+function rand(min,max){ return min + Math.random()*(max-min); }
+
+function heartPath(s){
+  ctx.beginPath();
+  ctx.moveTo(0, -s*0.25);
+  ctx.bezierCurveTo( s*0.55, -s*0.95,  s*1.15, -s*0.05, 0, s);
+  ctx.bezierCurveTo(-s*1.15, -s*0.05, -s*0.55, -s*0.95, 0, -s*0.25);
+  ctx.closePath();
+}
+function drawTexturedHeart(x,y,s,color,rot){
+  ctx.save();
+  ctx.translate(x,y);
+  ctx.rotate(rot);
+  const g = ctx.createRadialGradient(-s*0.25, -s*0.35, s*0.25, 0, 0, s*1.25);
+  g.addColorStop(0, "#ffe6ef");
+  g.addColorStop(0.20, color);
+  g.addColorStop(1, "#6a0618");
+  heartPath(s);
+  ctx.fillStyle = g;
+  ctx.fill();
+  ctx.globalAlpha = 0.22;
+  ctx.fillStyle = "white";
+  ctx.beginPath();
+  ctx.ellipse(-s*0.25, -s*0.28, s*0.40, s*0.24, -0.55, 0, Math.PI*2);
+  ctx.fill();
+  ctx.globalAlpha = 1;
+  ctx.strokeStyle = "rgba(0,0,0,.06)";
+  ctx.lineWidth = 1;
+  heartPath(s);
+  ctx.stroke();
+  ctx.restore();
+}
+function drawHeartSilhouette(cx, cy, size){
+  ctx.save();
+  ctx.translate(cx, cy);
+  const s = size * 0.35;
+  ctx.beginPath();
+  ctx.moveTo(0, -s*0.25);
+  ctx.bezierCurveTo( s*0.55, -s*0.95,  s*1.15, -s*0.05, 0, s);
+  ctx.bezierCurveTo(-s*1.15, -s*0.05, -s*0.55, -s*0.95, 0, -s*0.25);
+  ctx.closePath();
+  const g = ctx.createRadialGradient(-s*0.3, -s*0.4, s*0.2, 0, 0, s*1.4);
+  g.addColorStop(0, "rgba(255, 220, 235, 0.92)");
+  g.addColorStop(0.45, "rgba(255, 120, 165, 0.50)");
+  g.addColorStop(1, "rgba(198, 31, 58, 0.18)");
+  ctx.fillStyle = g;
+  ctx.fill();
+  ctx.restore();
+}
+
+function layout(){
+  const w = canvas.getBoundingClientRect().width;
+  const h = canvas.getBoundingClientRect().height;
+  const cx = w * 0.5;
+  const cy = h * (w < 520 ? 0.57 : 0.56);
+  const size = Math.min(w, h) * (w < 520 ? 0.30 : 0.28);
+  return { w, h, cx, cy, size };
+}
+
+let targets = [];
+let particles = [];
+let started = false;
+let t0 = 0;
+let textStarted = false;
+
+function resetHeartParticles(){
+  const { w, h, cx, cy, size } = layout();
+  targets = makeTargets(cx, cy, size, 2000, 420);
+  const N = (w < 520 ? 1200 : 1550);
+  particles = [];
+  for (let i=0;i<N;i++){
+    const t = targets[i % targets.length];
+    const side = Math.random();
+    let x0, y0;
+    if (side < 0.33){ x0 = -40; y0 = h * rand(0.15, 0.90); }
+    else if (side < 0.66){ x0 = w + 40; y0 = h * rand(0.15, 0.90); }
+    else { x0 = w * rand(0.15, 0.85); y0 = h + 40; }
+    particles.push({
+      x0, y0, x:x0, y:y0,
+      tx: t.x + rand(-4,4),
+      ty: t.y + rand(-4,4),
+      s: rand(7.5, 13.5),
+      c: HEART_COLORS[(Math.random()*HEART_COLORS.length)|0],
+      rot: rand(0, Math.PI*2),
+      vr: rand(-0.06, 0.06)
+    });
+  }
+}
+
+function drawFrame(progress){
+  const { w, h, cx, cy, size } = layout();
+  ctx.clearRect(0,0,w,h);
+  drawHeartSilhouette(cx, cy, size);
+  const p = easeOutCubic(progress);
+  for (const a of particles){
+    a.x = a.x0 + (a.tx - a.x0) * p;
+    a.y = a.y0 + (a.ty - a.y0) * p;
+    a.rot += a.vr;
+    const flutter = (1 - p) * Math.sin((a.x0 + a.y0) * 0.02 + progress*14) * 2.1;
+    drawTexturedHeart(a.x, a.y + flutter, a.s, a.c, a.rot);
+  }
+}
+
+async function typeWords(el, text, speedMs){
+  el.classList.add("visible");
+  el.textContent = "";
+  const parts = text.split(/(\s+)/);
+  for (const part of parts){
+    el.textContent += part;
+    await sleep(speedMs);
+  }
+}
+function showContent(){
+  content.classList.remove("hidden");
+  void content.offsetWidth;
+  content.classList.add("show");
+}
+async function revealText(){
+  if (textStarted) return;
+  textStarted = true;
+  showContent();
+  await typeWords(line1, PHRASES[0], SPEED_TITLE);
+  await sleep(650);
+  await typeWords(line2, PHRASES[1], SPEED_BODY);
+  await sleep(450);
+  startTimer();
+}
+function startTimer(){
+  function tick(){
+    const diff = new Date() - START_DATE;
+    const total = Math.floor(diff/1000);
+    const days = Math.floor(total/86400);
+    const hours = Math.floor((total%86400)/3600);
+    const minutes = Math.floor((total%3600)/60);
+    const seconds = total%60;
+    timerValue.textContent = `${days} días ${hours} horas ${minutes} minutos ${seconds} segundos`;
+  }
+  tick();
+  setInterval(tick, 1000);
+}
+
+function loop(ts){
+  if (!started) return;
+  const t = (ts - t0) / 1000;
+  const p = Math.min(t / HEART_BUILD_SECONDS, 1);
+  drawFrame(p);
+  if (p >= 1) revealText();
+  requestAnimationFrame(loop);
+}
+
+async function startMusic(){
+  bgm.volume = 0.55;
+  try{ await bgm.play(); }
+  catch(e){ showToast("Agrega music.mp3 al repo para que suene 🔊"); }
+}
+
+function start(){
+  if (started) return;
+  hint.textContent = "Iniciando…";
+  intro.style.transition = "opacity 260ms ease";
+  intro.style.opacity = "0";
+  setTimeout(()=>{ intro.style.display = "none"; }, 240);
+  startMusic();
+  resetHeartParticles();
+  started = true;
+  t0 = performance.now();
+  requestAnimationFrame(loop);
+}
+
+// Expose for inline onclick fallback
+window.__START__ = start;
+
+// Robust listeners
+startBtn.addEventListener("click", start);
+document.addEventListener("click", (e)=>{
+  if (e.target && e.target.closest && e.target.closest("#startBtn")) start();
+}, true);
+
+// If script failed to load, this won't run. If it runs, show a tiny confirmation once.
+console.log("San Valentin loaded OK");
+</script>
 </body>
 </html>
