@@ -1,48 +1,171 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>San Valentín</title>
-  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>San Valentín</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+body{
+  margin:0;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:linear-gradient(180deg,#3a0030,#130010);
+  font-family:'Playfair Display',serif;
+}
+
+.card{
+  width:95vw;
+  max-width:850px;
+  height:90vh;
+  background:#f3e9df;
+  border-radius:22px;
+  box-shadow:0 20px 50px rgba(0,0,0,.3);
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  padding:30px;
+  position:relative;
+  overflow:hidden;
+}
+
+.start{
+  cursor:pointer;
+}
+
+.start h1{
+  font-family:'Dancing Script',cursive;
+  font-size:48px;
+  color:#c61f3a;
+  margin-top:15px;
+}
+
+.start p{
+  opacity:.7;
+}
+
+.content{
+  display:none;
+  flex-direction:column;
+  align-items:center;
+}
+
+.text{
+  max-width:650px;
+  margin-bottom:20px;
+  font-size:22px;
+}
+
+.timer{
+  margin-top:20px;
+  border-top:2px solid rgba(0,0,0,.2);
+  padding-top:15px;
+}
+
+.timer strong{
+  font-size:26px;
+}
+
+svg{
+  width:280px;
+  height:260px;
+  margin:20px 0;
+}
+
+#heartFill{
+  transform-origin:center;
+  transform:scale(0);
+  transition:transform 1.2s ease;
+}
+
+.showHeart #heartFill{
+  transform:scale(1);
+}
+
+@media(max-width:500px){
+  .text{font-size:19px}
+}
+</style>
 </head>
 <body>
-  <main class="wrap">
-    <section class="card" aria-label="Tarjeta San Valentín">
-      <canvas id="scene"></canvas>
 
-      <div id="intro" class="intro" onclick="window.__SV_START && window.__SV_START()">
-        <button id="startBtn" class="startBtn" aria-label="Iniciar animación" onclick="window.__SV_START && window.__SV_START()">
-          <span class="heartIcon">❤</span>
-          <span class="startText">San Valentín</span>
-          <span class="hint">Toca el corazón</span>
-        </button>
-      </div>
+<div class="card">
 
-      <div id="content" class="content hidden" aria-live="polite">
-        <div class="topText">
-          <p id="line1" class="line title"></p>
-          <p id="line2" class="line body"></p>
-        </div>
+<div class="start" id="start">
+<svg viewBox="0 0 100 90">
+  <path d="M50 80 L10 40 A20 20 0 0 1 50 20 A20 20 0 0 1 90 40 Z"
+        fill="#ff4d6d"/>
+</svg>
+<h1>San Valentín</h1>
+<p>Toca el corazón</p>
+</div>
 
-        <!-- Espacio reservado para el corazón (canvas) -->
-        <div class="heartSlot" aria-hidden="true"></div>
+<div class="content" id="content">
+<p class="text">Para el amor de mi existencia:</p>
+<p class="text">Si pudiera elegir un lugar seguro sería a tu lado. Cuanto más tiempo estoy contigo más te amo.</p>
 
-        <div class="bottomText">
-          <div class="timer">
-            <span class="timerLabel">Mi amor por ti comenzó hace…</span>
-            <span id="timerValue" class="timerValue"></span>
-          </div>
-        </div>
-      </div>
+<svg viewBox="0 0 100 90" id="heartSVG">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff4d6d"/>
+      <stop offset="50%" stop-color="#ff006e"/>
+      <stop offset="100%" stop-color="#c9184a"/>
+    </linearGradient>
+  </defs>
+  <path d="M50 80 L10 40 A20 20 0 0 1 50 20 A20 20 0 0 1 90 40 Z"
+        fill="url(#grad)" id="heartFill"/>
+</svg>
 
-      <div id="toast" class="toast hidden" aria-live="polite"></div>
-    </section>
-  </main>
+<div class="timer">
+<span>Mi amor por ti comenzó hace…</span><br>
+<strong id="counter"></strong>
+</div>
 
-  <!-- Coloca un archivo llamado music.mp3 en la raíz del repo -->
-  <audio id="bgm" src="music.mp3" preload="auto" loop></audio>
-  <script src="script.js"></script>
+</div>
+
+<audio id="music" src="music.mp3" preload="auto" loop></audio>
+
+</div>
+
+<script>
+const start = document.getElementById("start");
+const content = document.getElementById("content");
+const counter = document.getElementById("counter");
+const heartFill = document.getElementById("heartFill");
+const music = document.getElementById("music");
+
+const START_DATE = new Date("2025-02-15T00:00:00");
+
+start.addEventListener("click", ()=>{
+  start.style.display="none";
+  content.style.display="flex";
+  setTimeout(()=>{
+    document.getElementById("heartSVG").classList.add("showHeart");
+  },200);
+  try{ music.play(); }catch(e){}
+  startTimer();
+});
+
+function startTimer(){
+  function update(){
+    const diff = new Date() - START_DATE;
+    const total = Math.floor(diff/1000);
+    const days = Math.floor(total/86400);
+    const hours = Math.floor((total%86400)/3600);
+    const minutes = Math.floor((total%3600)/60);
+    const seconds = total%60;
+    counter.textContent = `${days} días ${hours} horas ${minutes} minutos ${seconds} segundos`;
+  }
+  update();
+  setInterval(update,1000);
+}
+</script>
+
 </body>
 </html>
