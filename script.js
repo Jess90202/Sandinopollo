@@ -277,7 +277,7 @@ function loop(ts){
 }
 
 // ============================
-// START (click / touch)
+// START (robusto en móvil: pointer events + click)
 // ============================
 async function startMusic(){
   if (!bgm) return;
@@ -285,12 +285,12 @@ async function startMusic(){
   try{
     await bgm.play();
   }catch(e){
-    // if music.mp3 isn't present or browser blocks playback
-    showToast("Si no suena, agrega music.mp3 al repo y sube el volumen 🔊");
+    showToast("Si no suena, sube music.mp3 al repo 🔊");
   }
 }
 
 function start(){
+  if (started) return; // evita doble inicio
   intro.style.transition = "opacity 260ms ease";
   intro.style.opacity = "0";
   setTimeout(()=>{ intro.style.display = "none"; }, 240);
@@ -302,6 +302,14 @@ function start(){
   requestAnimationFrame(loop);
 }
 
-// Click + touch fallback
-startBtn.addEventListener("click", start, { passive:true });
-startBtn.addEventListener("touchend", (e)=>{ e.preventDefault(); start(); }, { passive:false });
+// Diagnóstico visual si algo truena
+window.addEventListener("error", (ev)=>{
+  showToast("Error: revisa consola / vuelve a subir el ZIP", 2600);
+});
+
+// Listeners (sin opciones raras)
+startBtn.addEventListener("click", start);
+startBtn.addEventListener("pointerup", (e)=>{
+  e.preventDefault();
+  start();
+});
