@@ -12,18 +12,19 @@
 </head>
 <body>
   <main class="frame">
-    <section class="card">
+    <section class="card" aria-label="Tarjeta San Valentín">
       <canvas id="scene"></canvas>
 
       <div id="intro" class="intro">
-        <button id="startBtn" class="startBtn">
+        <button id="startBtn" class="startBtn" aria-label="Iniciar animación">
           <span class="heartIcon">❤</span>
           <span class="startText">San Valentín</span>
           <span class="hint">Toca el corazón</span>
         </button>
       </div>
 
-      <div id="textLayer" class="textLayer hidden">
+      <!-- Texto a la izquierda; el árbol se dibuja del lado derecho en el canvas -->
+      <div id="textLayer" class="textLayer hidden" aria-live="polite">
         <p id="line1" class="line"></p>
         <p id="line2" class="line"></p>
         <p id="line3" class="line"></p>
@@ -37,7 +38,6 @@
   </main>
 
   <audio id="bgm" src="music.mp3" preload="auto" loop></audio>
-
   <script src="script.js"></script>
 </body>
 </html>
